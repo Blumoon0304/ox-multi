@@ -318,7 +318,7 @@
       .chat-model b{color:var(--ink)}
       @media(max-width:480px){.chat-msg{max-width:94%}.chat-compose{flex-direction:column;align-items:stretch}.chat-compose .btn{width:100%}.chat-img{width:100%}}
 
-      /* 기출문제 풀기 (빌드 25) */
+      /* 기출문제 풀기 (빌드 25) + 파트별 다시 풀기 (빌드 26) */
       .gc-filter-label{font-size:12.5px;font-weight:900;color:var(--ink-2);margin:14px 0 2px}
       .gc-filters{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
       .gc-fbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:700;cursor:pointer}
@@ -356,6 +356,17 @@
       .gc-repeat-note{margin-top:10px;background:var(--danger-soft);color:var(--danger);border-radius:var(--radius-s);padding:10px 13px;font-size:14px;font-weight:700;line-height:1.6}
       .gc-repeat-note.gc-warn-note{background:var(--warn-bg);color:var(--warn-ink)}
       .gc-retry{margin-top:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13.5px}
+      .gc-part-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:var(--radius-s);padding:12px 14px;margin:10px 0;background:var(--surface)}
+      .gc-part-info{flex:1 1 220px;min-width:0}
+      .gc-part-name{font-weight:900;font-size:15px}
+      .gc-part-sub{font-size:13px;color:var(--ink-2);font-weight:700;margin-top:2px;line-height:1.5}
+      .gc-part-btns{display:flex;flex-wrap:wrap;gap:6px;flex:none}
+      .gc-part-btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 13px;font-size:13px;font-weight:800;cursor:pointer}
+      .gc-part-btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--line)}
+      .gc-part-btn.armed{background:var(--danger);border-color:var(--danger);color:#fff}
+      .gc-part-btn:disabled{opacity:.45;cursor:default}
+      .gc-session{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--accent-soft);border-radius:var(--radius-s);padding:10px 13px;margin:12px 0;font-size:13.5px;font-weight:700;line-height:1.6}
+      @media(max-width:560px){.gc-part-btns{width:100%}.gc-part-btn{flex:1}}
     </style>
   </head>
   <body>
@@ -683,6 +694,20 @@
             </div>
             <p class="hint" style="margin-top:10px">같은 문제를 <b>3번 이상 틀리면</b> <b>‘반복 오답 (3회 이상)’</b> 카테고리에 자동으로 등록돼요. 거기서 따로 모아 오답정리하면서 다시 풀 수 있어요. 진행도와 누적 오답 기록은 닉네임별로 서버와 동기화돼서, 페이지를 닫았다가 다시 열어도 그대로 남아 있어요. ‘처음부터 다시 풀기’를 눌러도 누적 오답 기록은 지워지지 않아요.</p>
           </div>
+          <div class="card" id="gichul-part-card">
+            <div style="font-weight:900;font-size:16px">파트별로 다시 풀기</div>
+            <p class="desc" style="margin-top:6px">과목을 고르면 파트 목록이 나와요. 파트마다 ‘다시 풀기’를 누르면 <b>그 파트의 답안만</b> 처음부터 다시 풀 수 있고, 다른 파트의 진행도와 누적 오답 기록은 그대로 남아요. 순서대로 풀기와 랜덤 풀기 중 고를 수 있어요.</p>
+            <div class="gc-filter-label">과목 선택</div>
+            <div class="gc-filters" id="gichul-part-subject" role="group" aria-label="파트별 다시 풀기 과목"></div>
+            <div class="gc-session" id="gichul-part-session" hidden></div>
+            <div id="gichul-part-list"></div>
+            <p class="hint" id="gichul-part-msg" style="margin-top:8px"></p>
+          </div>
+          <div class="card" id="gichul-wrong-parts-card" hidden>
+            <div style="font-weight:900;font-size:16px">틀린 문제 — 파트별로 다시 풀기</div>
+            <p class="desc" style="margin-top:6px">지금 틀린 문제만 보기로 모아 둔 문제예요. 파트별로 그 파트에서 틀린 문제만 골라 다시 풀 수 있어요. 다시 풀기를 시작하면 그 문제들의 답안만 지워지고, 다른 파트는 건드리지 않아요.</p>
+            <div id="gichul-wrong-parts"></div>
+          </div>
           <main id="gichul-list"></main>
           <div class="empty" id="gichul-empty" hidden>이 조건에 맞는 문제가 없어. 필터를 바꿔봐.</div>
           <div class="card" id="gichul-finish" hidden style="text-align:center;border-color:var(--accent)">
@@ -692,6 +717,7 @@
               <button class="btn" id="gichul-finish-wrong" type="button">틀린 문제만 다시 보기</button>
               <button class="btn secondary" id="gichul-finish-reset" type="button">전체 다시 풀기</button>
             </div>
+            <div id="gichul-finish-parts" style="text-align:left;margin-top:16px"></div>
           </div>
           <p class="hint" style="margin-top:14px">문제는 한국산업인력공단이 공개한 세무사 1차 재정학·행정소송법 기출 원문을 공기출에서 가져왔고, 정답은 봄기출의 회차별 정답·해설과 대조했어요. 해설은 핵심만 짧게 줄인 거라, 더 깊은 풀이가 필요하면 원문 해설을 같이 봐 주세요.</p>
         </section>
@@ -1608,7 +1634,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 서버 연결 설정은 빌드 시에만 내장한다. 설정 화면에서 입력·수정·삭제할 수 없다.
       var EMBEDDED_SUPABASE_URL = "https://mlujpqxrozaegxhadsdx.supabase.co";
       var EMBEDDED_SUPABASE_KEY = "sb_publishable_Ru1FPkzRkjmpuhVbF8JsUA_-ElQrN_s";
-      var APP_BUILD = "2026-10-31 · 7단계 빌드 25";
+      var APP_BUILD = "2026-10-31 · 7단계 빌드 26";
       var DEFAULT_SUPABASE_URL = EMBEDDED_SUPABASE_URL;
       var LS_NICK = "ox2_nickname";
       var LS_STORE_PREFIX = "ox2_store_v1_";
@@ -4011,6 +4037,11 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       var gichulData = { answers: {}, wrongCounts: {} };
       var gFilter = { subject: "all", round: "all", part: "all" };
       var gWrongOnly = false;
+      var gPartSubject = "jae";
+      var gPartSession = null;
+      var gPartArmedKey = "";
+      var gPartArmTimer = null;
+      var gPartMsg = "";
       var gResetArmed = false, gResetTimer = null;
       var GICHUL_NUMS = ["①", "②", "③", "④", "⑤"];
       var GICHUL_SUBJECTS = [
@@ -4301,6 +4332,203 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(GICHUL_TABLES_SQL).then(done, fallback);
         else fallback();
       });
+
+      /* ---------- 빌드 26: 기출 파트별 다시 풀기 ---------- */
+      // 파트는 기존 파트 필터와 같은 기준(ch)이다: 재정학 ch3·ch4·ch5·ch6·ch8,
+      // 행정소송법 ap1·ap2·ap3·ap4. 다시 풀기는 그 파트 문제의 답안(answers)만
+      // 지우고, 누적 오답 기록(wrongCounts)과 다른 파트 답안은 절대 건드리지 않는다.
+      function gichulPartsForSubject(subj){
+        var out = [];
+        GICHUL_CHAPTERS.forEach(function(c){
+          if(c.id === "all" || c.id === "repeat") return;
+          var isAp = c.id.indexOf("ap") === 0;
+          if(subj === "haeng" && !isAp) return;
+          if(subj === "jae" && isAp) return;
+          var idxs = [];
+          GICHUL_QUESTIONS.forEach(function(q, idx){ if(q.ch === c.id) idxs.push(idx); });
+          if(idxs.length) out.push({ id: c.id, label: c.label, idxs: idxs });
+        });
+        return out;
+      }
+      function gichulPartStats(idxs){
+        var done = 0, ok = 0, wrong = 0, wrongIdxs = [];
+        idxs.forEach(function(idx){
+          var st = gichulData.answers[gichulKeyForIdx(idx)];
+          if(st){ done++; if(st.correct) ok++; else { wrong++; wrongIdxs.push(idx); } }
+        });
+        return { total: idxs.length, done: done, ok: ok, wrong: wrong, wrongIdxs: wrongIdxs };
+      }
+      function gPartArm(key, btn){
+        if(gPartArmedKey === key) return true;
+        gPartArmedKey = key;
+        if(gPartArmTimer) clearTimeout(gPartArmTimer);
+        gPartArmTimer = setTimeout(function(){ gPartArmedKey = ""; if(currentRoute() === "gichul") renderGichul(); }, 3500);
+        renderGichul();
+        return false;
+      }
+      function gClearPartAnswers(idxs){
+        idxs.forEach(function(idx){ delete gichulData.answers[gichulKeyForIdx(idx)]; });
+        saveGichulAnswers();
+      }
+      function gShuffleIdxs(idxs){
+        var a = idxs.slice();
+        for(var i = a.length - 1; i > 0; i--){
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
+      }
+      // mode: "seq" | "random", wrongOnly: true면 그 파트에서 틀린 문제만 대상
+      function startGichulPartReplay(partId, mode, wrongOnly){
+        ensureGichulLoaded();
+        var subj = partId.indexOf("ap") === 0 ? "haeng" : "jae";
+        var allIdxs = [];
+        GICHUL_QUESTIONS.forEach(function(q, idx){ if(q.ch === partId) allIdxs.push(idx); });
+        if(!allIdxs.length) return;
+        var stats = gichulPartStats(allIdxs);
+        var targets = wrongOnly ? stats.wrongIdxs.slice() : allIdxs.slice();
+        var armKey = (wrongOnly ? "wrong:" : "part:") + partId + ":" + mode;
+        if(!targets.length){
+          gPartMsg = wrongOnly ? "이 파트에는 지금 틀린 문제가 없어요." : "이 파트에는 문제가 없어요.";
+          renderGichul();
+          return;
+        }
+        if(!gPartArm(armKey)) return;
+        gPartArmedKey = "";
+        if(gPartArmTimer){ clearTimeout(gPartArmTimer); gPartArmTimer = null; }
+        gClearPartAnswers(targets);
+        var order = mode === "random" ? gShuffleIdxs(targets) : targets.slice();
+        gPartSession = { part: partId, subject: subj, mode: mode, wrongOnly: !!wrongOnly, order: order };
+        gFilter.subject = subj; gFilter.round = "all"; gFilter.part = partId;
+        gWrongOnly = false;
+        gPartSubject = subj;
+        gPartMsg = (GICHUL_CH_LABEL[partId] || partId) + " — " + targets.length + "문제를 " + (mode === "random" ? "랜덤 순서로" : "순서대로") + " 다시 풀기를 시작했어요. 이 파트 답안만 초기화됐고, 다른 파트 진행도와 누적 오답 기록은 그대로예요.";
+        renderGichul();
+        var listEl = $("gichul-list");
+        if(listEl) listEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      function endGichulPartSession(){
+        gPartSession = null;
+        gPartMsg = "";
+        renderGichul();
+      }
+      function gPartReplayButtons(container, partId, stats, wrongOnly){
+        ["seq", "random"].forEach(function(mode){
+          var b = document.createElement("button");
+          b.type = "button";
+          var armKey = (wrongOnly ? "wrong:" : "part:") + partId + ":" + mode;
+          var armed = gPartArmedKey === armKey;
+          b.className = "gc-part-btn" + (mode === "random" ? " secondary" : "") + (armed ? " armed" : "");
+          if(wrongOnly){
+            b.textContent = armed ? "정말 다시 풀까요? 다시 누르면 시작돼요" : ((mode === "random" ? "랜덤으로 " : "순서대로 ") + "틀린 것만 다시 풀기 (" + stats.wrong + "문제)");
+            b.disabled = stats.wrong === 0;
+          } else {
+            b.textContent = armed ? "정말 다시 풀까요? 다시 누르면 이 파트 답안만 지워져요" : ((mode === "random" ? "랜덤으로 다시 풀기" : "순서대로 다시 풀기"));
+          }
+          b.addEventListener("click", function(){ startGichulPartReplay(partId, mode, wrongOnly); });
+          container.appendChild(b);
+        });
+      }
+      function renderGichulPartPanel(){
+        var subjBox = $("gichul-part-subject");
+        var listBox = $("gichul-part-list");
+        if(!subjBox || !listBox) return;
+        subjBox.innerHTML = "";
+        [{ id: "jae", label: "재정학" }, { id: "haeng", label: "행정소송법" }].forEach(function(s){
+          var n = GICHUL_QUESTIONS.filter(function(q){ return gichulSubjectOf(q) === s.id; }).length;
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "gc-fbtn";
+          b.setAttribute("aria-pressed", gPartSubject === s.id ? "true" : "false");
+          b.textContent = s.label + " ";
+          var cnt = document.createElement("span"); cnt.className = "gc-cnt"; cnt.textContent = n;
+          b.appendChild(cnt);
+          b.addEventListener("click", function(){ gPartSubject = s.id; gPartArmedKey = ""; renderGichul(); });
+          subjBox.appendChild(b);
+        });
+        var sess = $("gichul-part-session");
+        if(sess){
+          if(gPartSession){
+            sess.hidden = false;
+            sess.innerHTML = "";
+            var stxt = document.createElement("span");
+            stxt.textContent = "파트 다시 풀기 중 · " + (GICHUL_CH_LABEL[gPartSession.part] || gPartSession.part) + " · " + (gPartSession.mode === "random" ? "랜덤 순서" : "순서대로") + (gPartSession.wrongOnly ? " · 틀린 문제만" : "") + " · " + gPartSession.order.length + "문제";
+            sess.appendChild(stxt);
+            var endBtn = document.createElement("button");
+            endBtn.type = "button"; endBtn.className = "gc-part-btn secondary";
+            endBtn.textContent = "다시 풀기 종료 (전체 목록으로)";
+            endBtn.addEventListener("click", endGichulPartSession);
+            sess.appendChild(endBtn);
+          } else sess.hidden = true;
+        }
+        listBox.innerHTML = "";
+        gichulPartsForSubject(gPartSubject).forEach(function(part){
+          var stats = gichulPartStats(part.idxs);
+          var row = document.createElement("div"); row.className = "gc-part-row";
+          var info = document.createElement("div"); info.className = "gc-part-info";
+          var nm = document.createElement("div"); nm.className = "gc-part-name"; nm.textContent = part.label;
+          var sub = document.createElement("div"); sub.className = "gc-part-sub";
+          sub.textContent = "총 " + stats.total + "문제 · 풀이 " + stats.done + " · 정답 " + stats.ok + " · 틀린 " + stats.wrong + (stats.done === stats.total && stats.total ? " · 완료" : "");
+          info.appendChild(nm); info.appendChild(sub);
+          row.appendChild(info);
+          var btns = document.createElement("div"); btns.className = "gc-part-btns";
+          gPartReplayButtons(btns, part.id, stats, false);
+          row.appendChild(btns);
+          listBox.appendChild(row);
+        });
+        var msg = $("gichul-part-msg");
+        if(msg) msg.textContent = gPartMsg || "";
+      }
+      function gRenderWrongPartRows(box){
+        box.innerHTML = "";
+        var any = false;
+        ["jae", "haeng"].forEach(function(subj){
+          gichulPartsForSubject(subj).forEach(function(part){
+            var stats = gichulPartStats(part.idxs);
+            if(!stats.wrong) return;
+            any = true;
+            var row = document.createElement("div"); row.className = "gc-part-row";
+            var info = document.createElement("div"); info.className = "gc-part-info";
+            var nm = document.createElement("div"); nm.className = "gc-part-name"; nm.textContent = part.label;
+            var sub = document.createElement("div"); sub.className = "gc-part-sub";
+            sub.textContent = "틀린 문제 " + stats.wrong + "문제 (이 파트 총 " + stats.total + "문제)";
+            info.appendChild(nm); info.appendChild(sub);
+            row.appendChild(info);
+            var btns = document.createElement("div"); btns.className = "gc-part-btns";
+            gPartReplayButtons(btns, part.id, stats, true);
+            row.appendChild(btns);
+            box.appendChild(row);
+          });
+        });
+        return any;
+      }
+      function renderGichulWrongParts(){
+        var card = $("gichul-wrong-parts-card");
+        var box = $("gichul-wrong-parts");
+        if(!card || !box) return;
+        if(!gWrongOnly){ card.hidden = true; return; }
+        var any = gRenderWrongPartRows(box);
+        card.hidden = !any;
+      }
+      function renderGichulFinishParts(){
+        var box = $("gichul-finish-parts");
+        if(!box) return;
+        var head = document.createElement("div");
+        head.style.cssText = "font-weight:900;font-size:15px;margin-bottom:4px";
+        head.textContent = "파트별로 틀린 문제만 다시 풀기";
+        var desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = "파트를 고르면 그 파트에서 틀린 문제만 처음부터 다시 풀 수 있어요. 다른 파트는 건드리지 않아요.";
+        box.innerHTML = "";
+        box.appendChild(head); box.appendChild(desc);
+        var any = gRenderWrongPartRows(box);
+        if(!any){
+          var none = document.createElement("p"); none.className = "hint";
+          none.textContent = "틀린 문제가 없어서 파트별로 다시 풀 문제가 없어요.";
+          box.appendChild(none);
+        }
+      }
+
       /* ---------- 기출문제 화면 렌더링 ---------- */
       function gBadge(text, cls){
         var s = document.createElement("span");
@@ -4335,7 +4563,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           return { id: s.id, label: s.label, count: n };
         });
         gFilterRow("gichul-subject-filters", subjItems, gFilter.subject, function(id){
-          gFilter.subject = id; gFilter.part = "all"; renderGichul();
+          gFilter.subject = id; gFilter.part = "all"; gPartSession = null; renderGichul();
         });
         var roundItems = GICHUL_ROUNDS.map(function(r){
           var n = GICHUL_QUESTIONS.filter(function(q, idx){
@@ -4344,7 +4572,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           return { id: r.id, label: r.label, count: n };
         });
         gFilterRow("gichul-round-filters", roundItems, gFilter.round, function(id){
-          gFilter.round = id; renderGichul();
+          gFilter.round = id; gPartSession = null; renderGichul();
         });
         var partItems = [{ id: "all", label: "전체 파트", count: GICHUL_QUESTIONS.filter(function(q, idx){
           return gMatchSubject(q, idx, gFilter.subject) && gMatchRound(q, gFilter.round);
@@ -4359,7 +4587,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           if(n > 0) partItems.push({ id: c.id, label: c.label, count: n });
         });
         gFilterRow("gichul-part-filters", partItems, gFilter.part, function(id){
-          gFilter.part = id; renderGichul();
+          gFilter.part = id; gPartSession = null; renderGichul();
         });
       }
       function gichulScore(){
@@ -4373,6 +4601,8 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       function renderGichul(){
         ensureGichulLoaded();
         renderGichulFilters();
+        renderGichulPartPanel();
+        renderGichulWrongParts();
         renderGichulSyncStatus();
         var sc = gichulScore();
         var nums = $("gichul-score-nums");
@@ -4388,10 +4618,22 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(!listEl) return;
         listEl.innerHTML = "";
         var visible = 0;
-        GICHUL_QUESTIONS.forEach(function(q, idx){
-          if(!gMatchSubject(q, idx, gFilter.subject)) return;
-          if(!gMatchRound(q, gFilter.round)) return;
-          if(!gMatchPart(q, gFilter.part)) return;
+        var gIdxList = [];
+        if(gPartSession && gPartSession.order && gPartSession.order.length){
+          gIdxList = gPartSession.order.slice();
+        } else {
+          GICHUL_QUESTIONS.forEach(function(qq, ii){ gIdxList.push(ii); });
+        }
+        gIdxList.forEach(function(idx){
+          var q = GICHUL_QUESTIONS[idx];
+          if(!q) return;
+          if(gPartSession){
+            if(!gMatchRound(q, gFilter.round)) return;
+          } else {
+            if(!gMatchSubject(q, idx, gFilter.subject)) return;
+            if(!gMatchRound(q, gFilter.round)) return;
+            if(!gMatchPart(q, gFilter.part)) return;
+          }
           var key = gichulKeyForIdx(idx);
           var st = gichulData.answers[key];
           if(gWrongOnly && !(st && !st.correct)) return;
@@ -4506,6 +4748,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
             fin.hidden = false;
             var ft = $("gichul-finish-title");
             if(ft) ft.textContent = GICHUL_QUESTIONS.length + "문항 완료 — " + sc.ok + "개 정답";
+            renderGichulFinishParts();
             var fx = $("gichul-finish-text");
             if(fx) fx.textContent = sc.ok === GICHUL_QUESTIONS.length
               ? "전부 맞혔어. 이 범위는 기출에서 반복되는 패턴이라, 해설의 핵심 포인트만 다시 훑으면 돼."
@@ -4554,6 +4797,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         gResetBtn.textContent = "처음부터 다시 풀기";
         // 다시 풀기는 현재 답안만 초기화 — 누적 오답(wrongCounts)은 유지해야 반복 오답이 쌓인다
         gichulData.answers = {};
+        gPartSession = null;
         gWrongOnly = false;
         saveGichulAnswers();
         renderGichul();
@@ -4567,6 +4811,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       var gFinishResetBtn = $("gichul-finish-reset");
       if(gFinishResetBtn) gFinishResetBtn.addEventListener("click", function(){
         gichulData.answers = {};
+        gPartSession = null;
         gWrongOnly = false;
         saveGichulAnswers();
         renderGichul();
