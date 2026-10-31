@@ -597,6 +597,15 @@
             </div>
           </div>
           <p class="okmsg" id="randall-reset-msg"></p>
+          <div class="card mode-panel" id="quiz-exhausted" hidden>
+            <h2>이 범위는 이미 다 풀었어요</h2>
+            <p class="desc" id="quiz-exhausted-desc"></p>
+            <div class="btn-row">
+              <button class="btn danger" id="btn-exhausted-reset" type="button">기록 리셋하고 처음부터 풀기</button>
+              <button class="btn" id="btn-exhausted-all" type="button">전체 문제로 다시 풀기</button>
+            </div>
+            <p class="hint">전체 문제로 다시 풀기를 고르면 기존 답 기록은 지우지 않고, 이미 푼 문제를 포함해 새로 섞어 풀어요.</p>
+          </div>
           <div class="card mode-panel" id="sessions-panel" hidden>
             <h2>이어서 풀기 · 저장된 진행도</h2>
             <p class="desc">순서대로 풀기·과목별 랜덤·파트별 풀이의 진행도예요. 중간에 그만둬도 섞인 순서와 답 기록·현재 위치가 그대로 남아서, 여기서 이어서 풀 수 있어요. 진행도는 닉네임별로 서버에 저장돼 같은 닉네임이면 다른 기기에서도 이어서 풀 수 있고, 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고 다시 연결되면 올려요. 지우는 건 각 항목의 리셋뿐이에요.</p>
@@ -646,6 +655,7 @@
               <button class="btn" id="btn-next" type="button" style="flex:1">다음 문제 →</button>
             </div>
           </div>
+          <p class="okmsg" id="quiz-pool-note" hidden></p>
           <div id="quiz-session-box" hidden>
             <p class="hint" id="quiz-session-note"></p>
             <button class="write-del-btn" id="btn-session-reset" type="button">이 풀이 진행도 리셋</button>
@@ -1661,7 +1671,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 서버 연결 설정은 빌드 시에만 내장한다. 설정 화면에서 입력·수정·삭제할 수 없다.
       var EMBEDDED_SUPABASE_URL = "https://mlujpqxrozaegxhadsdx.supabase.co";
       var EMBEDDED_SUPABASE_KEY = "sb_publishable_Ru1FPkzRkjmpuhVbF8JsUA_-ElQrN_s";
-      var APP_BUILD = "2026-10-31 · 7단계 빌드 28";
+      var APP_BUILD = "2026-11-01 · 7단계 빌드 29";
       var DEFAULT_SUPABASE_URL = EMBEDDED_SUPABASE_URL;
       var LS_NICK = "ox2_nickname";
       var LS_STORE_PREFIX = "ox2_store_v1_";
@@ -1687,6 +1697,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 서버 테이블 quiz_sessions에 저장한다. 아래 키는 서버에 닿지 않을 때 쓰는
       // 이 기기 임시 저장소다. 전체 랜덤은 기존 quiz_random_progress 흐름을 그대로 쓴다.
       var LS_QUIZ_SESSIONS_PREFIX = "ox2_quiz_sessions_v1_";
+      // 랜덤 다시 풀기 제외용 누적 기록 (빌드 29): 범위(전체 랜덤은 "randall", 그 밖에는
+      // 세션 키)별로 이미 답한 문항의 ref 목록을 이 기기에 누적해 둔다. 리셋할 때만 지운다.
+      var LS_QUIZ_SOLVED_PREFIX = "ox2_quiz_solved_v1_";
       // 기출문제 풀기(빌드 25~): 진행도와 누적 오답도 닉네임별 서버 동기화가 기본이다
       // (서버 테이블 gichul_progress·gichul_wrong_counts). 아래 키는 서버에 닿지 않을 때 쓰는 이 기기 임시 저장소다.
       var LS_GICHUL_PREFIX = "ox2_gichul_v1_";
@@ -3510,7 +3523,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         // 8단계: OX 퀴즈 전체 랜덤 진행도 테이블 읽기 (빌드 21)
         var quizTablesOk = false, quizTablesMissingStep = false;
         function stepQuizRand(){
-          return fetch(sbUrl("quiz_random_progress?select=nickname,order_refs,answers,current_idx,completed&limit=1"), { headers: sbGetHeaders() }).then(function(res){
+          return fetch(sbUrl("quiz_random_progress?select=nickname,order_refs,answers,current_index,completed&limit=1"), { headers: sbGetHeaders() }).then(function(res){
             noteHttp(res.status);
             return res.text().then(function(t){
               if(res.ok){ quizTablesOk = true; lines.push("8) 퀴즈 진행도 읽기 (GET /rest/v1/quiz_random_progress): HTTP 상태: " + res.status + " · HTTP " + res.status + " · 오류 종류: 없음 (성공) · 성공 · 브라우저 온라인: " + (navigator.onLine ? "예" : "아니오") + " · 실행 환경: " + frameLabel); }
@@ -3659,8 +3672,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 그만두기·결과 화면·앱 재시작으로는 절대 지우지 않고, 리셋 버튼(확인 후)만
       // 이 기기 기록과 서버 기록을 함께 지운다.
       var QUIZ_TABLES_SQL = [
-        "-- ox-multiuser: OX 퀴즈 서버 동기화 수리 + 풀이 세션 테이블 (빌드 28, 1회만 실행)",
+        "-- ox-multiuser: OX 퀴즈 서버 동기화 수리 + 풀이 세션 테이블 (빌드 29, 1회만 실행)",
         "-- 이미 있는 테이블은 지우지 않고, 앱이 쓰는 열이 없으면 더합니다.",
+        "alter table public.quiz_random_progress add column if not exists current_index integer not null default 0;",
         "alter table public.quiz_random_progress add column if not exists order_refs jsonb not null default '[]'::jsonb;",
         "alter table public.quiz_random_progress add column if not exists answers jsonb not null default '[]'::jsonb;",
         "alter table public.quiz_random_progress add column if not exists pending_picked text;",
@@ -3677,6 +3691,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         "alter table public.quiz_wrong_counts add column if not exists noted_at timestamptz;",
         "alter table public.quiz_wrong_counts add column if not exists removed_at timestamptz;",
         "create unique index if not exists quiz_wrong_counts_nick_qid_uidx on public.quiz_wrong_counts (nickname, question_id);",
+        "update public.quiz_wrong_counts set problem_key = question_id where problem_key is null and question_id is not null;",
+        "update public.quiz_wrong_counts set question_id = problem_key where question_id is null and problem_key is not null;",
+        "alter table public.quiz_wrong_counts alter column problem_key drop not null;",
         "create table if not exists public.quiz_sessions (",
         "  nickname text not null,",
         "  session_key text not null,",
@@ -3705,7 +3722,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       var quizPushTimer = null;
       function isQuizTableMissing(err){
         var m = err && err.message ? err.message : String(err || "");
-        if(m.indexOf("PGRST205") !== -1 || m.indexOf("Could not find the table") !== -1) return true;
+        if(m.indexOf("PGRST205") !== -1 || m.indexOf("PGRST204") !== -1 || m.indexOf("schema cache") !== -1 || m.indexOf("Could not find the table") !== -1) return true;
         if(m.indexOf("quiz_random_progress") !== -1 && m.indexOf("404") !== -1) return true;
         if(m.indexOf("quiz_wrong_counts") !== -1 && m.indexOf("404") !== -1) return true;
         // 테이블은 있는데 열 구성이 앱과 다르면(예: 예전 구성으로 만든 테이블) 업로드가
@@ -3715,7 +3732,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       }
       function isSchemaMissingText(m){
         m = String(m || "");
-        if(m.indexOf("PGRST205") !== -1 || m.indexOf("Could not find the table") !== -1) return true;
+        if(m.indexOf("PGRST205") !== -1 || m.indexOf("PGRST204") !== -1 || m.indexOf("schema cache") !== -1 || m.indexOf("Could not find the table") !== -1) return true;
         if(m.indexOf("does not exist") !== -1 && (m.indexOf("column") !== -1 || m.indexOf("quiz_") !== -1)) return true;
         if(m.indexOf("404") !== -1 && m.indexOf("quiz_") !== -1) return true;
         return false;
@@ -3783,6 +3800,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           updatedAt: nowISO()
         };
         writeRandAllLocal(s);
+        recordSolved("randall", s.order, s.answers);
         // 새 기록이 생겼으므로 이전 리셋의 서버 삭제 표시는 무효다
         setRandAllTombstone("");
         quizSync.randPending = true;
@@ -3790,8 +3808,45 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         renderQuizSyncStatus();
         scheduleQuizPush();
       }
+      /* ---------- 랜덤 다시 풀기: 이미 푼 문항 누적 기록 (빌드 29) ---------- */
+      function solvedStoreKey(){ return LS_QUIZ_SOLVED_PREFIX + encodeURIComponent(nickname || ""); }
+      function loadSolvedMap(){
+        if(!nickname) return {};
+        try{
+          var raw = localStorage.getItem(solvedStoreKey());
+          if(raw){ var j = JSON.parse(raw); if(j && typeof j === "object") return j; }
+        }catch(e){}
+        return {};
+      }
+      function solvedIdsFor(scope){
+        var m = loadSolvedMap();
+        return Array.isArray(m[scope]) ? m[scope] : [];
+      }
+      function recordSolved(scope, order, answers){
+        if(!nickname || !scope || !Array.isArray(order) || !Array.isArray(answers)) return;
+        var m = loadSolvedMap();
+        var set = {};
+        solvedIdsFor(scope).forEach(function(id){ set[id] = true; });
+        var changed = false;
+        order.forEach(function(ref, i){
+          var a = answers[i];
+          if(a !== "O" && a !== "X") return;
+          var id = freqRefId(ref);
+          if(id && !set[id]){ set[id] = true; changed = true; }
+        });
+        if(changed){
+          m[scope] = Object.keys(set);
+          try{ localStorage.setItem(solvedStoreKey(), JSON.stringify(m)); }catch(e){}
+        }
+      }
+      function clearSolved(scope){
+        if(!nickname || !scope) return;
+        var m = loadSolvedMap();
+        if(m[scope]){ delete m[scope]; try{ localStorage.setItem(solvedStoreKey(), JSON.stringify(m)); }catch(e){} }
+      }
       function clearRandAll(){
         writeRandAllLocal(null);
+        clearSolved("randall");
         // 리셋: 이 기기 기록은 바로 지우고, 서버 기록도 지운다. 서버 삭제가 실패하면
         // tombstone을 남겨 다음 동기화에서 마저 지운다 (새 세션이 없을 때만).
         setRandAllTombstone(nowISO());
@@ -3814,7 +3869,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           v: 2, setId: "all",
           order: row.order_refs,
           answers: answers,
-          idx: Math.max(0, Math.min(Math.floor(Number(row.current_idx) || 0), row.order_refs.length)),
+          idx: Math.max(0, Math.min(Math.floor(Number(row.current_index != null ? row.current_index : row.current_idx) || 0), row.order_refs.length)),
           correct: Math.floor(Number(row.correct_count) || 0),
           pendingPicked: (row.pending_picked === "O" || row.pending_picked === "X") ? row.pending_picked : null,
           completed: !!row.completed,
@@ -3828,7 +3883,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           order_refs: s.order,
           answers: s.answers,
           correct_count: Math.floor(Number(s.correct) || 0),
-          current_idx: Math.floor(Number(s.idx) || 0),
+          current_index: Math.floor(Number(s.idx) || 0),
           pending_picked: s.pendingPicked || null,
           completed: !!s.completed,
           started_at: s.startedAt || s.updatedAt || nowISO(),
@@ -3855,10 +3910,14 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       function freqRecToRow(id, rec){
         return {
           nickname: nickname,
+          // 서버 테이블의 기존 필수 열(problem_key, 빌드 21 이전 구성)이 비어 있으면
+          // 업로드가 23502로 실패해 대기 중이 영원히 풀리지 않았다 (빌드 29 수정).
+          problem_key: id,
           question_id: id,
           wrong_count: Math.floor(Number(rec.count) || 0),
           registered: !!rec.registered,
           is_removed: !rec.registered,
+          removed: !rec.registered,
           memo: rec.memo || "",
           first_wrong_at: rec.firstWrongAt || null,
           last_wrong_at: rec.lastWrongAt || null,
@@ -3923,15 +3982,17 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         var d = loadFreqData();
         var serverIds = {};
         remote.freqRows.forEach(function(row){
-          if(!row || !row.question_id) return;
-          serverIds[row.question_id] = true;
+          if(!row) return;
+          var qid = row.question_id || row.problem_key; // 기존 행은 problem_key에만 있을 수 있다
+          if(!qid) return;
+          serverIds[qid] = true;
           var srec = freqRowToRec(row);
-          var lrec = d.counts[row.question_id];
+          var lrec = d.counts[qid];
           if(!lrec){
-            d.counts[row.question_id] = srec;
+            d.counts[qid] = srec;
             changed = true;
           } else if((srec.updatedAt || "") > freqRecUpdatedAt(lrec)){
-            d.counts[row.question_id] = srec;
+            d.counts[qid] = srec;
             changed = true;
           } else if(freqRecUpdatedAt(lrec) > (srec.updatedAt || "")){
             quizSync.freqPending = true;
@@ -3994,13 +4055,14 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         return fetchQuizServer().then(function(remote){
           quizSync.tablesMissing = false;
           var changed = mergeQuizServer(remote);
-          return pushQuizServer().then(function(){
+          return pushQuizServer().then(function(ok){
             quizSync.syncing = false;
-            quizSync.lastOkAt = nowISO();
-            quizSync.lastError = "";
+            // 업로드가 실패했는데도 성공으로 덮으면 대기 중 원인이 숨겨진다 (빌드 29).
+            // 실패 시에는 pushQuizServer가 남긴 lastError와 pending 표시를 그대로 둔다.
+            if(ok){ quizSync.lastOkAt = nowISO(); quizSync.lastError = ""; }
             renderQuizSyncStatus();
             if(changed){ renderRandAllPanel(); renderFrequent(); }
-            return true;
+            return ok;
           });
         }).catch(function(err){
           quizSync.syncing = false;
@@ -4166,6 +4228,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         };
         if(m.tombs[quizState.sessionKey]) delete m.tombs[quizState.sessionKey];
         writeSessionsMap(m);
+        recordSolved(quizState.sessionKey, refs, quizState.answers);
         sessSync.pending = true;
         updateSessionNote();
         renderSessSyncStatus();
@@ -4177,6 +4240,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(m.sessions[key]) delete m.sessions[key];
         m.tombs[key] = nowISO();
         writeSessionsMap(m);
+        clearSolved(key);
         sessSync.pending = true;
         renderSessSyncStatus();
         scheduleSessPush();
@@ -5710,11 +5774,50 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           note.hidden = false;
         } else note.hidden = true;
       }
+      // 남은 문제가 없을 때의 안내(빌드 29): 빈 화면 대신 리셋/전체 다시 풀기 선택을 보여준다.
+      var randomBypassSolved = false;
+      var exhaustedCtx = null;
+      function showRandomExhausted(setId, partSection, count){
+        exhaustedCtx = { setId: setId, partSection: partSection || "", count: count };
+        var def = setDef(setId);
+        var label = (def ? def.name : "") + (partSection ? " · " + partSection : "") + " 랜덤";
+        var desc = $("quiz-exhausted-desc");
+        if(desc) desc.textContent = label + " 범위의 문제는 기록상 이미 다 풀었어요. 기록을 리셋하면 처음부터 다시 풀 수 있고, 전체 문제로 다시 풀기를 고르면 기록은 그대로 두고 이미 푼 문제를 포함해 새로 섞어 풀 수 있어요.";
+        var card = $("quiz-exhausted");
+        if(card) card.hidden = false;
+        navigateTo("#/quiz");
+        if(card) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      function hideRandomExhausted(){
+        var card = $("quiz-exhausted");
+        if(card) card.hidden = true;
+      }
+      var exhaustedResetBtn = $("btn-exhausted-reset");
+      if(exhaustedResetBtn) exhaustedResetBtn.addEventListener("click", function(){
+        if(!exhaustedCtx) return;
+        var ctx = exhaustedCtx;
+        exhaustedCtx = null;
+        hideRandomExhausted();
+        if(ctx.setId === "all" && !ctx.partSection) resetRandAllProgress();
+        else deleteSession(sessionKeyFor(ctx.setId, "random", ctx.partSection));
+        startQuiz(ctx.setId, "random", ctx.count, ctx.partSection || undefined);
+      });
+      var exhaustedAllBtn = $("btn-exhausted-all");
+      if(exhaustedAllBtn) exhaustedAllBtn.addEventListener("click", function(){
+        if(!exhaustedCtx) return;
+        var ctx = exhaustedCtx;
+        exhaustedCtx = null;
+        hideRandomExhausted();
+        randomBypassSolved = true; // 기존 답 기록은 지우지 않고 전체 문제로 다시 푼다
+        startQuiz(ctx.setId, "random", ctx.count, ctx.partSection || undefined);
+      });
       function startPartRandom(){
         if(!selectedSetId || !selectedPartSection) return;
-        // 파트 랜덤도 저장된 세션이 있으면 이어서 푼다 (빌드 28)
+        // 파트 랜덤도 저장된 세션이 있으면 이어서 푼다 (빌드 28).
+        // 단, 이미 완료된 세션은 이어풀 대상이 아니다: 리셋 없이 새 랜덤으로 시작한다 (빌드 29).
         var pk = sessionKeyFor(selectedSetId, "random", selectedPartSection);
-        if(loadSession(pk)){ resumeSession(pk); return; }
+        var pex = loadSession(pk);
+        if(pex && !pex.completed){ resumeSession(pk); return; }
         var max = partCount(selectedPartSection);
         var n = partRandomInputValue();
         var warn = $("part-random-warn");
@@ -5745,12 +5848,17 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       }
       function startRandom(){
         if(!selectedSetId) return;
-        // 전체 랜덤에 저장된 세션이 있으면 문제 수 입력과 상관없이 그 순서를 이어서 푼다
-        if(selectedSetId === "all" && loadRandAll()){ resumeRandAll(); return; }
-        // 과목별 랜덤도 저장된 세션이 있으면 문제 수 입력과 상관없이 이어서 푼다 (빌드 28)
+        // 전체 랜덤에 저장된 세션이 있으면 문제 수 입력과 상관없이 그 순서를 이어서 푼다.
+        // 단, 이미 완료된 세션은 이어풀 대상이 아니다: 리셋 없이 새 랜덤으로 시작한다 (빌드 29).
+        if(selectedSetId === "all"){
+          var ra = loadRandAll();
+          if(ra && !ra.completed){ resumeRandAll(); return; }
+        }
+        // 과목별 랜덤도 저장된 세션이 있으면 문제 수 입력과 상관없이 이어서 푼다 (빌드 28, 완료 세션 제외는 빌드 29)
         if(selectedSetId !== "all"){
           var rk = sessionKeyFor(selectedSetId, "random", "");
-          if(loadSession(rk)){ resumeSession(rk); return; }
+          var rex = loadSession(rk);
+          if(rex && !rex.completed){ resumeSession(rk); return; }
         }
         var max = setCount(selectedSetId);
         var n = randomInputValue();
@@ -5779,13 +5887,19 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         return pool;
       }
       function startQuiz(setId, mode, count, partSection){
-        // 전체 랜덤은 저장된 세션이 있으면 새로 섞지 않고 그 순서를 이어서 푼다 (초기화는 리셋 버튼만)
-        if(setId === "all" && mode === "random" && !partSection && loadRandAll()){ resumeRandAll(); return; }
-        // 그 밖의 모드(순서대로·과목별 랜덤·파트별)도 저장된 세션이 있으면 이어서 푼다 (빌드 28)
+        // 전체 랜덤은 진행 중인 저장 세션이 있으면 새로 섞지 않고 그 순서를 이어서 푼다.
+        // 완료된 세션은 이어풀 대상이 아니므로, 아래에서 새 세션으로 덮어써 다시 시작한다 (빌드 29).
+        if(setId === "all" && mode === "random" && !partSection){
+          var raq = loadRandAll();
+          if(raq && !raq.completed){ resumeRandAll(); return; }
+        }
+        // 그 밖의 모드(순서대로·과목별 랜덤·파트별)도 저장된 세션이 있으면 이어서 푼다 (빌드 28).
+        // 랜덤은 완료된 세션이면 이어풀지 않고 새 세션으로 시작한다 (빌드 29).
         var sKey = "";
         if(!(setId === "all" && mode === "random")){
           sKey = sessionKeyFor(setId, mode === "random" ? "random" : "seq", partSection || "");
-          if(loadSession(sKey)){ resumeSession(sKey); return; }
+          var exq = loadSession(sKey);
+          if(exq && (mode !== "random" || !exq.completed)){ resumeSession(sKey); return; }
         }
         var def = setDef(setId);
         var pool = poolFor(setId);
@@ -5793,6 +5907,29 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         // 그대로 유지하므로 맞힌·틀린 기록과 자주 틀리는 문제 누적이 동일하게 적용된다.
         if(partSection) pool = pool.filter(function(p){ return (p.q.section || "기타") === partSection; });
         if(!pool.length) return;
+        quizState.poolNote = 0;
+        var exRemaining = -1;
+        if(mode === "random" && !randomBypassSolved){
+          // 다시 풀기(빌드 29): 리셋하지 않았다면, 기록에 이미 답한 문항은 새 랜덤에서
+          // 제외하고 남은 문제만 섞는다. 제외 대상은 이 기기 누적 기록 + 저장된 세션의
+          // 답 기록 합집합이고, 기존 답 기록 자체는 지우지 않는다.
+          var scope = (setId === "all" && !partSection) ? "randall" : sKey;
+          var exSet = {};
+          solvedIdsFor(scope).forEach(function(id){ exSet[id] = true; });
+          var exSaved = (scope === "randall") ? loadRandAll() : loadSession(scope);
+          if(exSaved && Array.isArray(exSaved.order) && Array.isArray(exSaved.answers)){
+            exSaved.order.forEach(function(ref, i){
+              var a = exSaved.answers[i];
+              if(a === "O" || a === "X"){ var id = freqRefId(ref); if(id) exSet[id] = true; }
+            });
+          }
+          if(Object.keys(exSet).length){
+            pool = pool.filter(function(p){ return !exSet[freqRefId(p.ref)]; });
+            exRemaining = pool.length;
+            if(!pool.length){ showRandomExhausted(setId, partSection, count); return; }
+          }
+        }
+        randomBypassSolved = false;
         var picked = pool;
         if(mode === "random"){
           picked = pool.slice();
@@ -5802,7 +5939,11 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           }
           var n = Math.floor(Number(count));
           if(isNaN(n) || n < 1) n = picked.length;
-          if(n > picked.length) n = picked.length;
+          if(n > picked.length){
+            // 제외 뒤 남은 문제가 요청 수보다 적으면 남은 수만큼만 출제하고 그 수를 표시한다
+            if(exRemaining >= 0) quizState.poolNote = picked.length;
+            n = picked.length;
+          }
           picked = picked.slice(0, n);
         }
         quizState.setId = setId;
@@ -5822,6 +5963,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(quizState.timer){ clearTimeout(quizState.timer); quizState.timer = null; }
         if(quizState.savedSession) saveRandAll();
         if(quizState.sessionKey) saveCurrentSession();
+        hideRandomExhausted();
         navigateTo("#/quiz/play");
         renderQuestion();
       }
@@ -5846,6 +5988,13 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(q.page) meta += '<span class="chip">원본 p.' + esc(q.page) + '</span>';
         $("q-meta").innerHTML = meta;
         $("q-statement").textContent = q.statement;
+        var pn = $("quiz-pool-note");
+        if(pn){
+          if(quizState.poolNote){
+            pn.textContent = "이미 푼 문제를 제외하고 남은 " + quizState.poolNote.toLocaleString("ko-KR") + "문제만 출제했어요.";
+            pn.hidden = false;
+          } else pn.hidden = true;
+        }
         $("q-hint").hidden = false;
         var bo = $("btn-o"), bx = $("btn-x");
         bo.disabled = false; bx.disabled = false;
@@ -5928,7 +6077,13 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           $("result-save-note").hidden = false;
           $("result-save-note").textContent = "이 풀이 진행도는 저장돼 있어요. 결과 화면을 나가도 지워지지 않고, 처음부터 다시 풀려면 퀴즈 시작 화면의 '이어서 풀기 · 저장된 진행도'에서 그 항목을 리셋해 주세요.";
         }
-        if(isSavedRandAll()){
+        if(quizState.mode === "random" && quizState.completed && (quizState.sessionKey || isSavedRandAll())){
+          // 완료된 랜덤은 리셋 없이 다시 시작할 수 있다 (빌드 29): 이미 푼 문제는
+          // 제외하고 남은 문제로 새 세션을 시작한다 (남은 문제가 없으면 안내 표시).
+          $("btn-retry").textContent = "다시 랜덤으로 풀기";
+          $("result-save-note").hidden = false;
+          $("result-save-note").textContent = "다 푼 기록은 남아 있어요. '다시 랜덤으로 풀기'를 누르면 리셋 없이, 이미 푼 문제를 제외하고 남은 문제로 새로 시작해요.";
+        } else if(isSavedRandAll()){
           // 저장된 전체 랜덤 세션의 결과 화면에서는 새로 섞는 다시 풀기를 하지 않는다.
           // 이어서 풀기(저장된 순서 유지)와 리셋(명시적 초기화)만 제공한다.
           $("btn-retry").textContent = "이어서 풀기";
@@ -5977,7 +6132,12 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         navigateTo("#/quiz");
       });
       $("btn-retry").addEventListener("click", function(){
-        if(isSavedRandAll()){ resumeRandAll(); return; }
+        if(isSavedRandAll()){
+          // 완료된 전체 랜덤은 결과 화면에서 바로 새 랜덤으로 다시 시작한다 (빌드 29)
+          if(quizState.completed) startQuiz("all", "random", quizState.randomCount);
+          else resumeRandAll();
+          return;
+        }
         if(quizState.mode === "freq"){ startFreqQuiz(quizState.orderRefs.slice()); return; }
         if(quizState.mode === "random") startQuiz(quizState.setId, "random", quizState.randomCount, quizState.part || undefined);
         else startQuiz(quizState.setId, "seq", undefined, quizState.part || undefined);
