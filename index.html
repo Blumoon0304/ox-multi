@@ -6,6 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta http-equiv="Cache-Control" content="no-cache" />
     <meta http-equiv="Pragma" content="no-cache" />
+    <meta name="ox-build" content="30" />
     <link rel="icon" href="data:," />
     <title>OX 다인용 동기화 프로토타입</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -586,8 +587,10 @@
             <p class="hint" id="randall-sync-note"></p>
             <div class="btn-row">
               <button class="btn" id="btn-randall-resume" type="button" style="flex:1">이어서 풀기</button>
+              <button class="btn secondary" id="btn-randall-new" type="button" style="flex:1">새로 문제 풀기</button>
               <button class="btn danger" id="btn-randall-reset" type="button">리셋</button>
             </div>
+            <p class="hint">새로 문제 풀기를 누르면 다 풀지 않은 상태에서도 새 랜덤을 바로 시작해요. 지금까지 푼 문제는 기록에 남아 새 풀이에서는 제외되고, 남은 문제만 나와요. 기존 기록은 지워지지 않아요.</p>
             <div class="write-del-confirm" id="randall-reset-confirm" hidden>
               <p style="margin:0 0 10px">저장된 랜덤 순서와 푼 기록을 모두 지울까요? 지우면 되돌릴 수 없고, 다음에 전체 랜덤을 시작할 때 새로 섞어요.</p>
               <div class="btn-row" style="margin-top:0">
@@ -604,16 +607,16 @@
               <button class="btn danger" id="btn-exhausted-reset" type="button">기록 리셋하고 처음부터 풀기</button>
               <button class="btn" id="btn-exhausted-all" type="button">전체 문제로 다시 풀기</button>
             </div>
-            <p class="hint">전체 문제로 다시 풀기를 고르면 기존 답 기록은 지우지 않고, 이미 푼 문제를 포함해 새로 섞어 풀어요.</p>
+            <p class="hint">전체 문제로 다시 풀기를 고르면 기존 답 기록은 지우지 않고, 이미 푼 문제를 포함해 처음부터 다시 풀어요.</p>
           </div>
           <div class="card mode-panel" id="sessions-panel" hidden>
             <h2>이어서 풀기 · 저장된 진행도</h2>
-            <p class="desc">순서대로 풀기·과목별 랜덤·파트별 풀이의 진행도예요. 중간에 그만둬도 섞인 순서와 답 기록·현재 위치가 그대로 남아서, 여기서 이어서 풀 수 있어요. 진행도는 닉네임별로 서버에 저장돼 같은 닉네임이면 다른 기기에서도 이어서 풀 수 있고, 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고 다시 연결되면 올려요. 지우는 건 각 항목의 리셋뿐이에요.</p>
+            <p class="desc">순서대로 풀기·과목별 랜덤·파트별 풀이의 진행도예요. 중간에 그만둬도 섞인 순서와 답 기록·현재 위치가 그대로 남아서, 여기서 이어서 풀 수 있어요. 다 풀지 않았어도 각 항목의 새로 풀기를 누르면 새 풀이를 바로 시작할 수 있어요. 새 풀이를 시작해도 이 진행도는 목록에 그대로 남고, 이미 푼 문제는 기록에 남아 새 풀이에서는 제외돼 남은 문제만 나와요. 진행도는 닉네임별로 서버에 저장돼 같은 닉네임이면 다른 기기에서도 이어서 풀 수 있고, 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고 다시 연결되면 올려요. 지우는 건 각 항목의 리셋뿐이에요.</p>
             <p class="hint" id="sessions-sync-note"></p>
             <div id="sessions-list"></div>
             <p class="okmsg" id="sessions-reset-msg"></p>
           </div>
-          <p class="hint">순서대로 풀기는 원본 순서를 그대로 따르고, 랜덤 풀기는 중복 없이 무작위로 뽑아 출제합니다. 전체 문제 랜덤은 섞인 순서와 진행도가 닉네임별로 서버에 자동 저장돼, 같은 닉네임이면 어느 기기에서든 이어서 풀 수 있고 리셋 버튼으로만 초기화됩니다. 순서대로 풀기·과목별 랜덤·파트별 풀이도 진행도가 닉네임별로 저장돼, 위 '이어서 풀기 · 저장된 진행도'에서 이어서 풀 수 있어요. 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고, 다시 연결되면 서버에 올려요.</p>
+          <p class="hint">순서대로 풀기는 원본 순서를 그대로 따르고, 랜덤 풀기는 중복 없이 무작위로 뽑아 출제합니다. 전체 문제 랜덤은 섞인 순서와 진행도가 닉네임별로 서버에 자동 저장돼, 같은 닉네임이면 어느 기기에서든 이어서 풀 수 있고 리셋 버튼으로만 초기화됩니다. 순서대로 풀기·과목별 랜덤·파트별 풀이도 진행도가 닉네임별로 저장돼, 위 '이어서 풀기 · 저장된 진행도'에서 이어서 풀 수 있어요. 위의 시작 버튼은 언제든 새 풀이를 시작해요. 풀던 풀이가 남아 있어도 시작 버튼이나 각 항목의 새로 풀기를 누르면, 기존 기록은 그대로 둔 채 이미 푼 문제를 제외하고 남은 문제로 새 풀이가 시작돼요. 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고, 다시 연결되면 서버에 올려요.</p>
           <div class="card mode-panel">
             <h2>자주 틀리는 문제 <span class="freq-badge" id="freq-count" hidden></span></h2>
             <p class="desc">같은 문제를 <b>3번 이상</b> 틀리면 자동으로 여기에 등록돼요. 틀린 횟수는 순서대로·랜덤 등 푸는 방식과 세션을 가리지 않고 닉네임별로 누적해서 세고, 이 기능이 들어간 뒤부터 새로 셉니다. 기록은 닉네임별로 서버에 저장돼 같은 닉네임이면 어느 기기에서든 같은 목록이 보여요. 서버에 닿지 않을 때는 이 기기에 임시로 저장해 두고, 다시 연결되면 서버에 올려요. 맞혀도 자동으로 빠지지 않고, 따로 공부해서 해결했을 때 직접 빼거나 오답노트에 정리할 수 있어요.</p>
@@ -1088,8 +1091,9 @@
               <button type="button" class="btn secondary" id="set-sync-now">지금 동기화 시도</button>
               <button type="button" class="btn secondary" id="set-version-check">서버 버전 다시 확인</button>
               <button type="button" class="btn secondary" id="set-conn-test">연결 테스트</button>
-              <button type="button" class="btn secondary" id="set-reload">캐시 비우고 새로고침</button>
+              <button type="button" class="btn secondary" id="set-reload">최신 버전으로 다시 불러오기</button>
             </div>
+            <p class="hint">앱을 열면 서버의 최신 빌드와 이 기기 화면을 자동으로 비교해서, 새 빌드가 있으면 캐시를 비우고 자동으로 다시 불러와요. 그래도 옛 빌드가 보이면 위 <b>최신 버전으로 다시 불러오기</b>를 눌러 주세요. 안드로이드 설정에서 캐시를 지울 필요가 없고, 공부 기록·진행도는 지워지지 않아요.</p>
             <p class="hint">맥에서만 연결이 안 되고 폰에서는 되면, 맥 브라우저에 옛 버전이 캐시됐을 수 있어요. 폰의 이 화면과 위 <b>앱 빌드</b>가 같은지 비교해 보세요. 다르면 위 버튼으로 캐시를 비우고 새로고침하거나, 맥에서 Cmd+Shift+R을 눌러 강력 새로고침하세요. 연결에 실패하면 위쪽에 HTTP 상태와 서버 오류 내용이 그대로 표시돼요.</p>
             <p class="hint">"Failed to fetch"처럼 요청 자체가 실패하는 경우는 서버 응답을 받기 전에 브라우저에서 막힌 거예요. 흔한 원인: CORS·프리플라이트 차단, 광고·추적 차단 확장 프로그램, VPN이나 회사·학교 네트워크의 방화벽, 사파리의 콘텐츠 차단. 맥 크롬이면 확장 프로그램을 끄거나 시크릿 창에서, 사파리면 콘텐츠 차단을 끄고 다시 시도해 보세요. 연결 테스트 버튼을 누르면 서버 상태 확인과 데이터 읽기를 단계별로 점검해 결과를 그대로 보여줘요. 연결이 안 돼도 입력한 내용은 이 기기에 계속 저장되고, 네트워크가 되면 자동으로 다시 동기화를 시도해요. 맥 크롬 주소창에서 Supabase 주소가 열리는데 앱에서만 실패한다면, 앱이 아니라 앱이 열린 환경 쪽 문제예요. 시크릿 창에서 열거나 확장 프로그램을 끄고 비교해 보세요.</p>
             <p class="hint">사용 테이블: <code>nicknames</code> · <code>user_progress</code> · <code>wrong_notes</code> · <code>blank_drafts</code> · <code>bulletin_posts</code>(공용 게시판) · <code>app_versions</code>(공용 버전, id=1) · <code>uploads</code>(공용 자료 업로드 기록, 파일 본체는 Storage의 공개 <code>uploads</code> 버킷) · <code>quiz_random_progress</code>(닉네임별 전체 랜덤 진행도) · <code>quiz_wrong_counts</code>(닉네임+문제별 틀린 횟수) · <code>quiz_sessions</code>(닉네임별 OX 풀이 진행도) · <code>gichul_progress</code>(닉네임별 기출 진행도) · <code>gichul_wrong_counts</code>(닉네임+기출문제별 틀린 횟수)</p>
@@ -1671,7 +1675,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 서버 연결 설정은 빌드 시에만 내장한다. 설정 화면에서 입력·수정·삭제할 수 없다.
       var EMBEDDED_SUPABASE_URL = "https://mlujpqxrozaegxhadsdx.supabase.co";
       var EMBEDDED_SUPABASE_KEY = "sb_publishable_Ru1FPkzRkjmpuhVbF8JsUA_-ElQrN_s";
-      var APP_BUILD = "2026-11-01 · 7단계 빌드 29";
+      var APP_BUILD = "2026-11-01 · 7단계 빌드 30";
       var DEFAULT_SUPABASE_URL = EMBEDDED_SUPABASE_URL;
       var LS_NICK = "ox2_nickname";
       var LS_STORE_PREFIX = "ox2_store_v1_";
@@ -3606,11 +3610,75 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         });
       });
 
-      /* ---------- 설정: 캐시 비우고 새로고침 ---------- */
+      /* ---------- 최신 빌드 자동 확인 + 강제 다시 불러오기 (빌드 30) ---------- */
+      // APK 웹뷰가 옛 index.html을 캐시에 들고 있으면 서버에 새 빌드가 올라와도
+      // 계속 옛 화면만 보였다. 그래서 앱을 열 때(그리고 앱으로 돌아올 때) 이 페이지
+      // 자체를 캐시를 거치지 않고 다시 받아 빌드 번호(meta ox-build)를 비교하고,
+      // 서버 쪽이 더 새로우면 캐시 저장소를 비우고 새 주소로 자동 교체한다.
+      // 공부 기록은 localStorage·서버에 있어 캐시 저장소를 비워도 지워지지 않는다.
+      var OX_BUILD_NUM = 30;
+      var buildCheckLastAt = 0;
+      function clearPageCaches(){
+        var jobs = [];
+        try{
+          if(window.caches && caches.keys){
+            jobs.push(caches.keys().then(function(keys){
+              return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+            }).catch(function(){}));
+          }
+        }catch(e){}
+        try{
+          if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+            jobs.push(navigator.serviceWorker.getRegistrations().then(function(regs){
+              return Promise.all(regs.map(function(r){ return r.unregister(); }));
+            }).catch(function(){}));
+          }
+        }catch(e){}
+        return Promise.all(jobs);
+      }
+      function reloadWithBuild(buildNum){
+        try{
+          var url = window.location.pathname + "?oxv=" + buildNum + window.location.hash;
+          window.location.replace(url);
+        }catch(e){ window.location.reload(); }
+      }
+      function checkLatestBuild(){
+        var nowMs = Date.now();
+        if(nowMs - buildCheckLastAt < 60000) return; // 너무 자주 확인하지 않는다
+        buildCheckLastAt = nowMs;
+        if(!navigator.onLine) return;
+        var req;
+        try{
+          req = fetch("index.html?oxcheck=" + nowMs, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+        }catch(e){ return; }
+        req.then(function(res){ return res.ok ? res.text() : null; }).then(function(html){
+          if(!html) return;
+          var m = html.match(/name="ox-build"\s+content="(\d+)"/);
+          if(!m) return;
+          var serverBuild = parseInt(m[1], 10);
+          if(isNaN(serverBuild) || serverBuild <= OX_BUILD_NUM) return;
+          // 이미 새 빌드로 교체 시도를 한 주소면 무한 새로고침을 막고 배너로 알린다
+          if((window.location.search || "").indexOf("oxv=" + serverBuild) !== -1){
+            var vb = $("version-banner"), vt = $("version-banner-text");
+            if(vb && vt){
+              vt.textContent = "새 빌드 " + serverBuild + "가 있어요. 설정의 '최신 버전으로 다시 불러오기'를 눌러 주세요.";
+              vb.hidden = false;
+            }
+            return;
+          }
+          clearPageCaches().then(function(){ reloadWithBuild(serverBuild); });
+        }).catch(function(){ /* 확인 실패는 조용히 넘긴다: 다음에 앱을 열 때 다시 확인한다 */ });
+      }
+      /* ---------- 설정: 최신 버전으로 다시 불러오기 ---------- */
       $("set-reload").addEventListener("click", function(){
-        // 쿼리에 시각을 붙여 다시 열면 브라우저가 새 파일을 받아 온다 (해시 경로는 그대로 유지됨)
-        try{ window.location.search = "cb=" + String(Date.now()); }
-        catch(e){ window.location.reload(); }
+        // 캐시 저장소(페이지 캐시)만 비우고 새 주소로 다시 불러온다. 공부 기록이 든
+        // localStorage와 서버 기록은 건드리지 않는다 (해시 경로는 그대로 유지됨).
+        var btn = $("set-reload");
+        if(btn) btn.disabled = true;
+        clearPageCaches().then(function(){
+          try{ window.location.replace(window.location.pathname + "?oxv=" + String(Date.now()) + window.location.hash); }
+          catch(e){ window.location.reload(); }
+        });
       });
 
       function renderBuildInfo(){
@@ -3628,7 +3696,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       });
       // 네트워크가 복구됐을 수 있는 시점(앱으로 돌아올 때)마다 자동 재시도
       document.addEventListener("visibilitychange", function(){
-        if(document.hidden || !supabaseKey || !navigator.onLine) return;
+        if(document.hidden) return;
+        checkLatestBuild(); // 앱으로 돌아올 때마다 최신 빌드인지 다시 확인한다 (빌드 30)
+        if(!supabaseKey || !navigator.onLine) return;
         if(nickname){
           if(syncState==="off") syncNow(false);
           else { if(typeof syncQuizData === "function") syncQuizData(); if(typeof syncSessions === "function") syncSessions(); }
@@ -4409,6 +4479,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
             + (s.updatedAt ? '<p class="hint">마지막 저장: ' + esc(fmtDate(s.updatedAt)) + '</p>' : '')
             + '<div class="btn-row">'
             + '<button class="btn" type="button" data-sess-resume="' + i + '" style="flex:1">' + (s.completed ? "저장된 결과 보기" : "이어서 풀기") + '</button>'
+            + '<button class="btn secondary" type="button" data-sess-new="' + i + '" style="flex:1">새로 풀기</button>'
             + '<button class="btn danger" type="button" data-sess-reset="' + i + '">' + (sessArmKey === s.key ? "정말 지울까요?" : "리셋") + '</button>'
             + '</div></div>';
         });
@@ -4417,6 +4488,15 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         for(var i=0;i<rBtns.length;i++) rBtns[i].addEventListener("click", function(){
           var s = sessPanelItems[parseInt(this.getAttribute("data-sess-resume"), 10)];
           if(s) resumeSession(s.key);
+        });
+        var nBtns = list.querySelectorAll("[data-sess-new]");
+        for(var ni=0;ni<nBtns.length;ni++) nBtns[ni].addEventListener("click", function(){
+          var s = sessPanelItems[parseInt(this.getAttribute("data-sess-new"), 10)];
+          if(!s) return;
+          // 새로 풀기 (빌드 30): 진행 중이던 세션을 지우지 않고 목록에 남긴 채,
+          // 이미 푼 문제를 제외하고 남은 문제로 새 세션을 바로 시작한다.
+          if(s.mode === "random") startQuizNew(s.setId, "random", s.order.length, s.part || undefined);
+          else startQuizNew(s.setId, "seq", undefined, s.part || undefined);
         });
         var dBtns = list.querySelectorAll("[data-sess-reset]");
         for(var j=0;j<dBtns.length;j++) dBtns[j].addEventListener("click", function(){
@@ -5367,7 +5447,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         var rc = $("randall-reset-confirm"); if(rc) rc.hidden = true;
         renderQuizSyncStatus();
         panel.hidden = false;
-        if(startBtn && selectedSetId === "all") startBtn.textContent = "저장된 순서로 이어서 풀기";
+        // 빌드 30: 시작 버튼은 언제든 새 풀이 시작이다. 이어서 풀기는 위 패널의
+        // '이어서 풀기' 버튼으로만 하고, 시작 버튼을 이어풀기로 바꾸지 않는다.
+        if(startBtn && selectedSetId === "all") startBtn.textContent = "랜덤으로 풀기 시작";
       }
       function resumeRandAll(){
         var s = loadRandAll(); if(!s) return false;
@@ -5777,12 +5859,94 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 남은 문제가 없을 때의 안내(빌드 29): 빈 화면 대신 리셋/전체 다시 풀기 선택을 보여준다.
       var randomBypassSolved = false;
       var exhaustedCtx = null;
-      function showRandomExhausted(setId, partSection, count){
-        exhaustedCtx = { setId: setId, partSection: partSection || "", count: count };
+      /* ---------- 새로 풀기 (빌드 30) ---------- */
+      // 풀던 세션이 끝나지 않았어도 항상 새 풀이를 시작할 수 있게 한다. 시작 버튼·
+      // 새로 풀기 버튼은 startQuizNew로 들어오고, 진행 중이던 세션은 지우지 않는다:
+      // 세션 단위 풀이는 기존 세션을 보관 항목으로 목록에 남기고(이어서 풀기 가능),
+      // 전체 랜덤은 단일 슬롯이라 답 기록이 누적 기록(solved)에 그대로 남는다.
+      // 새 풀이에서는 누적 기록에 이미 답한 문항을 제외하고 남은 문제만 출제한다.
+      var quizForceNew = false;
+      function startQuizNew(setId, mode, count, partSection){
+        quizForceNew = true;
+        startQuiz(setId, mode, count, partSection);
+        quizForceNew = false;
+      }
+      function collectSolvedIds(scope){
+        // 제외 대상은 범위를 가리지 않고 모은다: 문항 식별자(과목:위치)가 전역으로
+        // 유일해서, 파트에서 푼 문항을 과목 전체 풀이에서 제외하는 것처럼 서로 다른
+        // 범위의 기록이 섞여도 풀에 없는 문항은 걸러지지 않는다. 이렇게 해야 파트
+        // 세션·보관된 옛 세션·덮인 세션의 문항까지 빠짐없이 제외된다.
+        var set = {};
+        function addIds(ids){ (ids || []).forEach(function(id){ set[id] = true; }); }
+        function addSessionAnswers(s){
+          if(!s || !Array.isArray(s.order) || !Array.isArray(s.answers)) return;
+          s.order.forEach(function(ref, i){
+            var a = s.answers[i];
+            if(a === "O" || a === "X"){ var id = freqRefId(ref); if(id) set[id] = true; }
+          });
+        }
+        var solvedMap = loadSolvedMap();
+        Object.keys(solvedMap).forEach(function(k){ addIds(solvedMap[k]); });
+        var m = loadSessionsMap();
+        Object.keys(m.sessions).forEach(function(k){ addSessionAnswers(m.sessions[k]); });
+        addSessionAnswers(loadRandAll());
+        return set;
+      }
+      function archiveInProgressSession(setId, mode, partSection){
+        // 전체 랜덤은 서버·기기 모두 닉네임당 단일 슬롯이라 별도 보관 항목을 만들 수
+        // 없다. 대신 답 기록은 saveRandAll이 누적 기록에 계속 남기므로 지워지지 않는다.
+        if(setId === "all" && mode === "random" && !partSection) return;
+        var baseKey = sessionKeyFor(setId, mode === "random" ? "random" : "seq", partSection || "");
+        archiveSessionByKey(baseKey);
+      }
+      function archiveSessionByKey(baseKey){
+        // 새 세션이 기존 세션 슬롯을 덮기 전에, 기존 세션을 보관 항목(@키)으로
+        // 옮겨 목록·동기화에 그대로 남긴다. 진행 중이든 완료됐든 답한 문제가 있으면
+        // 보존한다: 보관된 세션의 답도 collectSolvedIds가 제외 대상으로 합치므로,
+        // 오래된 세션의 문항이 새 세션에 다시 나오는 일이 없다.
+        var ex = loadSession(baseKey);
+        if(!ex) return;
+        if(sessionAnswered(ex) <= 0) return; // 답한 문제가 없으면 보존할 기록이 없다
+        var m = loadSessionsMap();
+        if(!m.sessions[baseKey]) return;
+        var archKey = baseKey + "@" + Date.now();
+        var copy = JSON.parse(JSON.stringify(m.sessions[baseKey]));
+        copy.key = archKey;
+        m.sessions[archKey] = copy;
+        delete m.sessions[baseKey];
+        // 서버에 남은 옛 행이 동기화로 되살아나지 않게 삭제 표시를 남긴다 (기존 리셋과 같은 방식)
+        m.tombs[baseKey] = nowISO();
+        writeSessionsMap(m);
+        sessSync.pending = true;
+        renderSessSyncStatus();
+        scheduleSessPush();
+      }
+      function deleteSessionsForScope(baseKey){
+        if(!baseKey || !nickname) return;
+        var m = loadSessionsMap();
+        var changed = false;
+        Object.keys(m.sessions).forEach(function(k){
+          if(k === baseKey || k.indexOf(baseKey + "@") === 0){
+            delete m.sessions[k];
+            m.tombs[k] = nowISO();
+            clearSolved(k);
+            changed = true;
+          }
+        });
+        if(changed){
+          writeSessionsMap(m);
+          sessSync.pending = true;
+          renderSessSyncStatus();
+          scheduleSessPush();
+          renderSessionsPanel();
+        }
+      }
+      function showRandomExhausted(setId, partSection, count, mode){
+        exhaustedCtx = { setId: setId, partSection: partSection || "", count: count, mode: mode === "seq" ? "seq" : "random" };
         var def = setDef(setId);
-        var label = (def ? def.name : "") + (partSection ? " · " + partSection : "") + " 랜덤";
+        var label = (def ? def.name : "") + (partSection ? " · " + partSection : "") + (exhaustedCtx.mode === "random" ? " 랜덤" : " 순서대로");
         var desc = $("quiz-exhausted-desc");
-        if(desc) desc.textContent = label + " 범위의 문제는 기록상 이미 다 풀었어요. 기록을 리셋하면 처음부터 다시 풀 수 있고, 전체 문제로 다시 풀기를 고르면 기록은 그대로 두고 이미 푼 문제를 포함해 새로 섞어 풀 수 있어요.";
+        if(desc) desc.textContent = label + " 범위의 문제는 기록상 이미 다 풀었어요. 기록을 리셋하면 처음부터 다시 풀 수 있고, 전체 문제로 다시 풀기를 고르면 기록은 그대로 두고 이미 푼 문제를 포함해 처음부터 다시 풀 수 있어요.";
         var card = $("quiz-exhausted");
         if(card) card.hidden = false;
         navigateTo("#/quiz");
@@ -5798,9 +5962,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         var ctx = exhaustedCtx;
         exhaustedCtx = null;
         hideRandomExhausted();
-        if(ctx.setId === "all" && !ctx.partSection) resetRandAllProgress();
-        else deleteSession(sessionKeyFor(ctx.setId, "random", ctx.partSection));
-        startQuiz(ctx.setId, "random", ctx.count, ctx.partSection || undefined);
+        if(ctx.mode === "random" && ctx.setId === "all" && !ctx.partSection) resetRandAllProgress();
+        else deleteSessionsForScope(sessionKeyFor(ctx.setId, ctx.mode, ctx.partSection));
+        startQuizNew(ctx.setId, ctx.mode, ctx.count, ctx.partSection || undefined);
       });
       var exhaustedAllBtn = $("btn-exhausted-all");
       if(exhaustedAllBtn) exhaustedAllBtn.addEventListener("click", function(){
@@ -5809,15 +5973,12 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         exhaustedCtx = null;
         hideRandomExhausted();
         randomBypassSolved = true; // 기존 답 기록은 지우지 않고 전체 문제로 다시 푼다
-        startQuiz(ctx.setId, "random", ctx.count, ctx.partSection || undefined);
+        startQuizNew(ctx.setId, ctx.mode, ctx.count, ctx.partSection || undefined);
       });
       function startPartRandom(){
         if(!selectedSetId || !selectedPartSection) return;
-        // 파트 랜덤도 저장된 세션이 있으면 이어서 푼다 (빌드 28).
-        // 단, 이미 완료된 세션은 이어풀 대상이 아니다: 리셋 없이 새 랜덤으로 시작한다 (빌드 29).
-        var pk = sessionKeyFor(selectedSetId, "random", selectedPartSection);
-        var pex = loadSession(pk);
-        if(pex && !pex.completed){ resumeSession(pk); return; }
+        // 시작 버튼은 항상 새 풀이 시작이다 (빌드 30): 진행 중이던 파트 세션은
+        // 지워지지 않고 저장된 진행도 목록에 남아 이어서 풀 수 있다.
         var max = partCount(selectedPartSection);
         var n = partRandomInputValue();
         var warn = $("part-random-warn");
@@ -5829,7 +5990,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         }
         warn.hidden = true;
         if(n > max) n = max;
-        startQuiz(selectedSetId, "random", n, selectedPartSection);
+        startQuizNew(selectedSetId, "random", n, selectedPartSection);
       }
       function randomInputValue(){
         var raw = $("random-count").value;
@@ -5848,18 +6009,10 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       }
       function startRandom(){
         if(!selectedSetId) return;
-        // 전체 랜덤에 저장된 세션이 있으면 문제 수 입력과 상관없이 그 순서를 이어서 푼다.
-        // 단, 이미 완료된 세션은 이어풀 대상이 아니다: 리셋 없이 새 랜덤으로 시작한다 (빌드 29).
-        if(selectedSetId === "all"){
-          var ra = loadRandAll();
-          if(ra && !ra.completed){ resumeRandAll(); return; }
-        }
-        // 과목별 랜덤도 저장된 세션이 있으면 문제 수 입력과 상관없이 이어서 푼다 (빌드 28, 완료 세션 제외는 빌드 29)
-        if(selectedSetId !== "all"){
-          var rk = sessionKeyFor(selectedSetId, "random", "");
-          var rex = loadSession(rk);
-          if(rex && !rex.completed){ resumeSession(rk); return; }
-        }
+        // 시작 버튼은 항상 새 풀이 시작이다 (빌드 30): 전체 랜덤·과목별 랜덤 모두
+        // 진행 중이던 세션이 있어도 입력한 문제 수로 새 랜덤을 시작한다. 진행 중이던
+        // 풀이는 지워지지 않고(전체 랜덤은 패널, 과목별은 저장된 진행도 목록) 이어서
+        // 풀 수 있고, 이미 푼 문제는 새 풀이에서 제외된다.
         var max = setCount(selectedSetId);
         var n = randomInputValue();
         var warn = $("random-warn");
@@ -5871,7 +6024,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         }
         warn.hidden = true;
         if(n > max) n = max;
-        startQuiz(selectedSetId, "random", n);
+        startQuizNew(selectedSetId, "random", n);
       }
       function poolFor(setId){
         var pool = [];
@@ -5887,19 +6040,36 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         return pool;
       }
       function startQuiz(setId, mode, count, partSection){
-        // 전체 랜덤은 진행 중인 저장 세션이 있으면 새로 섞지 않고 그 순서를 이어서 푼다.
-        // 완료된 세션은 이어풀 대상이 아니므로, 아래에서 새 세션으로 덮어써 다시 시작한다 (빌드 29).
-        if(setId === "all" && mode === "random" && !partSection){
-          var raq = loadRandAll();
-          if(raq && !raq.completed){ resumeRandAll(); return; }
+        var forceNew = quizForceNew;
+        quizForceNew = false;
+        if(!forceNew){
+          // 결과 화면 다시 풀기 등 내부 진입은 기존 동작을 유지한다: 전체 랜덤은
+          // 진행 중인 저장 세션이 있으면 그 순서를 이어서 푼다. 완료된 세션은
+          // 이어풀 대상이 아니므로, 아래에서 새 세션으로 덮어써 다시 시작한다 (빌드 29).
+          if(setId === "all" && mode === "random" && !partSection){
+            var raq = loadRandAll();
+            if(raq && !raq.completed){ resumeRandAll(); return; }
+          }
+          // 그 밖의 모드(순서대로·과목별 랜덤·파트별)도 저장된 세션이 있으면 이어서 푼다 (빌드 28).
+          // 랜덤은 완료된 세션이면 이어풀지 않고 새 세션으로 시작한다 (빌드 29).
+          if(!(setId === "all" && mode === "random")){
+            var rk0 = sessionKeyFor(setId, mode === "random" ? "random" : "seq", partSection || "");
+            var exq0 = loadSession(rk0);
+            if(exq0 && (mode !== "random" || !exq0.completed)){ resumeSession(rk0); return; }
+          }
+        } else {
+          // 새로 풀기 (빌드 30): 진행 중이던 세션은 지우지 않고 보관한 뒤 새 세션을 시작한다.
+          archiveInProgressSession(setId, mode, partSection || "");
         }
-        // 그 밖의 모드(순서대로·과목별 랜덤·파트별)도 저장된 세션이 있으면 이어서 푼다 (빌드 28).
-        // 랜덤은 완료된 세션이면 이어풀지 않고 새 세션으로 시작한다 (빌드 29).
         var sKey = "";
-        if(!(setId === "all" && mode === "random")){
+        if(!(setId === "all" && mode === "random" && !partSection)){
           sKey = sessionKeyFor(setId, mode === "random" ? "random" : "seq", partSection || "");
-          var exq = loadSession(sKey);
-          if(exq && (mode !== "random" || !exq.completed)){ resumeSession(sKey); return; }
+        }
+        if(!forceNew && mode === "random" && sKey){
+          // 결과 화면 다시 풀기처럼 완료된 랜덤 세션을 새 세션으로 덮는 경로에서도,
+          // 완료된 세션을 보관 항목으로 남겨 그 문항이 제외 대상에서 빠지지 않게 한다.
+          var exDone = loadSession(sKey);
+          if(exDone && exDone.completed) archiveSessionByKey(sKey);
         }
         var def = setDef(setId);
         var pool = poolFor(setId);
@@ -5909,24 +6079,19 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         if(!pool.length) return;
         quizState.poolNote = 0;
         var exRemaining = -1;
-        if(mode === "random" && !randomBypassSolved){
-          // 다시 풀기(빌드 29): 리셋하지 않았다면, 기록에 이미 답한 문항은 새 랜덤에서
-          // 제외하고 남은 문제만 섞는다. 제외 대상은 이 기기 누적 기록 + 저장된 세션의
-          // 답 기록 합집합이고, 기존 답 기록 자체는 지우지 않는다.
-          var scope = (setId === "all" && !partSection) ? "randall" : sKey;
-          var exSet = {};
-          solvedIdsFor(scope).forEach(function(id){ exSet[id] = true; });
-          var exSaved = (scope === "randall") ? loadRandAll() : loadSession(scope);
-          if(exSaved && Array.isArray(exSaved.order) && Array.isArray(exSaved.answers)){
-            exSaved.order.forEach(function(ref, i){
-              var a = exSaved.answers[i];
-              if(a === "O" || a === "X"){ var id = freqRefId(ref); if(id) exSet[id] = true; }
-            });
-          }
+        if(!randomBypassSolved && (mode === "random" || forceNew)){
+          // 다시 풀기(빌드 29)·새로 풀기(빌드 30): 리셋하지 않았다면, 기록에 이미
+          // 답한 문항은 새 풀이에서 제외하고 남은 문제만 출제한다. 제외 대상은
+          // 누적 기록 + 저장된 세션(보관된 세션 포함)의 답 기록 합집합이고,
+          // 기존 답 기록 자체는 지우지 않는다. 순서대로도 같은 규칙을 적용한다.
+          var scope = (setId === "all" && mode === "random" && !partSection) ? "randall" : sKey;
+          var exSet = collectSolvedIds(scope);
           if(Object.keys(exSet).length){
+            var poolBefore = pool.length;
             pool = pool.filter(function(p){ return !exSet[freqRefId(p.ref)]; });
             exRemaining = pool.length;
-            if(!pool.length){ showRandomExhausted(setId, partSection, count); return; }
+            if(!pool.length){ showRandomExhausted(setId, partSection, count, mode); return; }
+            if(mode !== "random" && pool.length < poolBefore) quizState.poolNote = pool.length;
           }
         }
         randomBypassSolved = false;
@@ -6147,6 +6312,15 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         startFreqQuiz(refs);
       });
       $("btn-randall-resume").addEventListener("click", function(){ resumeRandAll(); });
+      $("btn-randall-new").addEventListener("click", function(){
+        // 새로 문제 풀기 (빌드 30): 다 풀지 않은 전체 랜덤이 있어도, 입력한 문제 수로
+        // 새 랜덤을 바로 시작한다. 기존 답 기록은 누적 기록에 남아 새 풀이에서 제외된다.
+        var n = randomInputValue();
+        if(isNaN(n) || n <= 0) n = 20;
+        var maxAll = setCount("all");
+        if(n > maxAll) n = maxAll;
+        startQuizNew("all", "random", n);
+      });
       $("btn-session-reset").addEventListener("click", function(){ $("session-reset-confirm").hidden = false; });
       $("btn-session-reset-no").addEventListener("click", function(){ $("session-reset-confirm").hidden = true; });
       $("btn-session-reset-yes").addEventListener("click", function(){
@@ -6168,10 +6342,10 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       $("btn-result-reset").addEventListener("click", function(){ $("result-reset-confirm").hidden = false; });
       $("btn-result-reset-no").addEventListener("click", function(){ $("result-reset-confirm").hidden = true; });
       $("btn-result-reset-yes").addEventListener("click", resetRandAllProgress);
-      $("btn-seq-start").addEventListener("click", function(){ if(selectedSetId) startQuiz(selectedSetId, "seq"); });
+      $("btn-seq-start").addEventListener("click", function(){ if(selectedSetId) startQuizNew(selectedSetId, "seq"); });
       $("btn-random-start").addEventListener("click", startRandom);
       $("random-count").addEventListener("input", function(){ $("random-warn").hidden = true; updateRandomNote(); });
-      $("btn-part-seq").addEventListener("click", function(){ if(selectedSetId && selectedPartSection) startQuiz(selectedSetId, "seq", undefined, selectedPartSection); });
+      $("btn-part-seq").addEventListener("click", function(){ if(selectedSetId && selectedPartSection) startQuizNew(selectedSetId, "seq", undefined, selectedPartSection); });
       $("btn-part-random").addEventListener("click", startPartRandom);
       $("part-random-count").addEventListener("input", function(){ $("part-random-warn").hidden = true; updatePartRandomNote(); });
       $("btn-q-home").addEventListener("click", function(){ navigateTo("#/quiz"); });
@@ -7064,6 +7238,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         }catch(e){}
         initNavGuard();
         checkShellUpdate();
+        checkLatestBuild();
         loadBoardCache(); loadVersionCache(); loadUploadsCache(); sortBoard(); sortUploads();
         renderBuildInfo(); renderVersion(); renderBoard(); renderUploads();
         refreshKeyBanner(); refreshOffline();
