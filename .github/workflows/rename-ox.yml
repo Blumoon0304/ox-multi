@@ -1,0 +1,18 @@
+name: Rename ox-2 to index
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm index.html
+          git mv ox-2.html index.html
+          git status --short
+          git commit -m "Rename ox-2.html to index.html"
+          git push
