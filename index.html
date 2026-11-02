@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta http-equiv="Cache-Control" content="no-cache" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta name="ox-build" content="31" />
+    <meta name="ox-build" content="32" />
     <link rel="icon" href="data:," />
     <title>OX 다인용 동기화 프로토타입</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -371,6 +371,51 @@
       .gc-part-btn:disabled{opacity:.45;cursor:default}
       .gc-session{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--accent-soft);border-radius:var(--radius-s);padding:10px 13px;margin:12px 0;font-size:13.5px;font-weight:700;line-height:1.6}
       @media(max-width:560px){.gc-part-btns{width:100%}.gc-part-btn{flex:1}}
+
+      /* 영상 + 메모 (빌드 32) */
+      .video-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin:6px 0 10px}
+      .video-now{min-width:0;flex:1}
+      .video-now-no{font-family:"Noto Serif KR",serif;font-weight:900;font-size:21px;line-height:1.25}
+      .video-now-title{font-weight:700;font-size:15px;margin-top:2px;word-break:keep-all}
+      .video-now-meta{color:var(--ink-2);font-size:13px;margin-top:2px}
+      .video-progress{font-weight:900;color:var(--accent);font-size:14px;white-space:nowrap;padding-top:4px}
+      .video-frame-wrap{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+      #video-player-holder{position:absolute;inset:0}
+      #video-player-holder iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+      .video-fallback{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:var(--surface-2);color:var(--ink);overflow:auto}
+      .video-fallback[hidden]{display:none}
+      .video-fallback-title{font-weight:900;font-size:16px;margin:0 0 6px}
+      .video-fallback-msg{color:var(--ink-2);font-size:13.5px;margin:0;max-width:540px;line-height:1.6}
+      .video-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+      .video-controls #video-next{margin-left:auto}
+      @media(max-width:560px){.video-controls #video-next{margin-left:0}}
+      .video-memo-panel{margin:12px 0}
+      .video-memo-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+      .video-memo-head h2{font-size:16px}
+      .video-memo-state{color:var(--ink-2);font-size:12.5px;font-weight:700}
+      .video-memo-head .btn{margin-left:auto}
+      .video-memo-panel textarea{min-height:120px}
+      #video-memo-overlay-slot{position:absolute;left:8px;right:8px;bottom:8px;z-index:4}
+      #video-memo-overlay-slot:empty{display:none}
+      .video-memo-panel.overlay{margin:0;padding:12px 14px;background:var(--surface);background:color-mix(in srgb,var(--surface) 93%,transparent);box-shadow:var(--shadow)}
+      .video-memo-panel.overlay textarea{min-height:60px;max-height:110px}
+      .video-memo-panel.overlay .hint{display:none}
+      .video-concepts{margin:6px 0 0;padding-left:20px;font-size:14px;line-height:1.7}
+      .video-list-title{font-family:"Noto Serif KR",serif;font-size:19px;margin:22px 0 6px}
+      .video-list-title span{font-family:"Noto Sans KR",sans-serif;font-size:13px;color:var(--ink-2);font-weight:700;margin-left:6px}
+      .video-list{display:flex;flex-direction:column;gap:8px}
+      .video-item{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 12px;cursor:pointer;color:var(--ink)}
+      .video-item .vno{flex:none;width:40px;height:40px;border-radius:10px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
+      .video-item.current{border-color:var(--accent);background:var(--accent-soft)}
+      .video-item.current .vno{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+      .video-item .vmain{flex:1;min-width:0}
+      .video-item .vtitle{display:block;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .video-item .vmeta{display:block;color:var(--ink-2);font-size:12px}
+      .video-item .vbadges{flex:none;display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+      .vbadge{font-size:11px;font-weight:900;border-radius:999px;padding:2px 8px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+      .vbadge.done{background:var(--accent);color:var(--accent-ink)}
+      .vbadge.memo{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-line)}
+      .lec-watch{margin-left:8px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:800;cursor:pointer;vertical-align:middle;white-space:nowrap}
     </style>
   </head>
   <body>
@@ -379,7 +424,7 @@
     <header class="topbar">
       <div class="topbar-in">
         <button type="button" class="back-btn" id="back-btn" hidden>← 홈으로</button>
-        <div class="brand">OX 다인용 프로토타입<small>7단계 · AI 채팅 추가</small></div>
+        <div class="brand">OX 다인용 프로토타입<small>7단계 · 영상+메모 추가</small></div>
         <span class="sync-pill off" id="sync-pill" role="status"><span class="sync-dot"></span><span id="sync-label">서버 연결 확인 중</span></span>
         <span class="nick-chip" id="nick-chip" hidden><span id="nick-name"></span><button type="button" id="nick-change-btn">변경</button></span>
       </div>
@@ -423,6 +468,7 @@
           <a href="#/" data-route="home">홈</a>
           <a href="#/study" data-route="study">공부</a>
           <a href="#/gichul" data-route="gichul">기출문제 풀기</a>
+          <a href="#/video" data-route="video">영상+메모</a>
           <a href="#/schedule" data-route="schedule">스케쥴</a>
           <a href="#/board" data-route="board">게시판</a>
           <a href="#/uploads" data-route="uploads">자료 업로드</a>
@@ -468,6 +514,12 @@
               <div class="num">기출</div>
               <h3>기출문제 풀기</h3>
               <p>재정학 52문제 · 행정소송법 119문제, 총 171문제</p>
+              <div class="go">열기 →</div>
+            </a>
+            <a class="entry" href="#/video">
+              <div class="num">영상</div>
+              <h3>영상 + 메모</h3>
+              <p>재정학 45–104강 영상 60개 · 끝나면 다음 강의 자동 재생 · 강의별 메모</p>
               <div class="go">열기 →</div>
             </a>
             <a class="entry" href="#/schedule">
@@ -885,6 +937,61 @@
           <div id="lec-container"></div>
         </section>
 
+        <!-- 영상 + 메모 -->
+        <section class="view" id="view-video" hidden>
+          <h1 class="page-title">영상 + 메모</h1>
+          <p class="page-sub">재정학 45–104강 영상을 보면서 강의별 메모를 남기는 화면이에요. 영상이 끝나면 완료로 표시되고, 자동 넘김이 켜져 있으면 다음 강의가 바로 재생돼요. 메모는 체크리스트의 강의 메모와 같은 칸이라, 여기서 쓴 메모가 체크리스트에도 보이고 닉네임별로 서버와 동기화돼요.</p>
+
+          <div class="video-head">
+            <div class="video-now">
+              <div class="video-now-no" id="video-now-no">재정학 55강</div>
+              <div class="video-now-title" id="video-now-title"></div>
+              <div class="video-now-meta" id="video-now-meta"></div>
+            </div>
+            <div class="video-progress" id="video-progress"></div>
+          </div>
+
+          <div class="video-frame-wrap" id="video-frame-wrap">
+            <div id="video-player-holder"></div>
+            <div class="video-fallback" id="video-fallback" hidden>
+              <p class="video-fallback-title">이 화면에서 영상이 재생되지 않아요</p>
+              <p class="video-fallback-msg" id="video-fallback-msg"></p>
+              <div class="btn-row" style="justify-content:center;margin-top:10px">
+                <button type="button" class="btn" id="video-retry">다시 시도</button>
+                <a class="btn secondary" id="video-fallback-open" href="#" target="_blank" rel="noopener">YouTube에서 열기</a>
+              </div>
+            </div>
+            <div id="video-memo-overlay-slot"></div>
+          </div>
+
+          <div class="video-controls">
+            <button type="button" class="btn secondary" id="video-prev">← 이전 강의</button>
+            <button type="button" class="switch-btn" role="switch" aria-checked="true" id="video-auto-toggle">자동으로 다음 강의 재생</button>
+            <button type="button" class="switch-btn" role="switch" aria-checked="false" id="video-done-toggle">완료 표시</button>
+            <a class="btn secondary" id="video-open-yt" href="#" target="_blank" rel="noopener">YouTube에서 열기</a>
+            <button type="button" class="btn" id="video-next">다음 강의 →</button>
+          </div>
+          <p class="hint" id="video-status" role="status"></p>
+
+          <div id="video-memo-below-slot">
+            <div class="card video-memo-panel" id="video-memo-panel">
+              <div class="video-memo-head">
+                <h2 id="video-memo-title" style="margin:0">강의 메모</h2>
+                <span class="video-memo-state" id="video-memo-state">입력하면 바로 저장돼요</span>
+                <button type="button" class="btn secondary small" id="video-memo-float">영상 위에 띄우기</button>
+                <button type="button" class="btn secondary small" id="video-memo-dock" hidden>영상 아래로 내리기</button>
+              </div>
+              <textarea id="video-memo-input" maxlength="2000" placeholder="영상 보면서 기억할 개념, 헷갈린 부분, 공식 같은 걸 적어 두세요. 강의마다 따로 저장돼요."></textarea>
+              <p class="hint" style="margin-bottom:0">이 메모는 재정학 체크리스트의 같은 강의 메모 칸과 연결돼 있어요. 긴 메모는 체크리스트의 한 줄 칸보다 여기서 쓰는 게 편해요.</p>
+            </div>
+          </div>
+
+          <div class="card" id="video-info"></div>
+
+          <h2 class="video-list-title">강의 목록<span id="video-list-count"></span></h2>
+          <div class="video-list" id="video-list"></div>
+        </section>
+
         <!-- 오답노트 -->
         <section class="view" id="view-wrong" hidden>
           <h1 class="page-title">오답노트</h1>
@@ -1167,7 +1274,7 @@
             <div class="err" id="import-err"></div>
           </div>
 
-          <p class="foot">7단계: 메인 OX와 같은 공부(OX 퀴즈·백지 공부)와 스케쥴(오늘 스케쥴·재정학 45–104강·오답노트·시간표), AI 채팅이 들어갔어요. 기존 데이터 이관·전체 백업은 위 설정에서 할 수 있어요.</p>
+          <p class="foot">7단계: 메인 OX와 같은 공부(OX 퀴즈·백지 공부)와 스케쥴(오늘 스케쥴·재정학 45–104강·오답노트·시간표), AI 채팅, 영상+메모(재정학 45–104강)가 들어갔어요. 기존 데이터 이관·전체 백업은 위 설정에서 할 수 있어요.</p>
         </section>
       </div>
     </main>
@@ -1697,7 +1804,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 서버 연결 설정은 빌드 시에만 내장한다. 설정 화면에서 입력·수정·삭제할 수 없다.
       var EMBEDDED_SUPABASE_URL = "https://mlujpqxrozaegxhadsdx.supabase.co";
       var EMBEDDED_SUPABASE_KEY = "sb_publishable_Ru1FPkzRkjmpuhVbF8JsUA_-ElQrN_s";
-      var APP_BUILD = "2026-11-01 · 7단계 빌드 31";
+      var APP_BUILD = "2026-11-02 · 7단계 빌드 32";
       var DEFAULT_SUPABASE_URL = EMBEDDED_SUPABASE_URL;
       var LS_NICK = "ox2_nickname";
       var LS_STORE_PREFIX = "ox2_store_v1_";
@@ -1763,6 +1870,9 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         { label:"3주차", range:"11월 14일 – 11월 20일", count:18, from:14, to:21 },
         { label:"4주차", range:"11월 21일 – 11월 24일", count:6, from:21, to:25 }
       ];
+      // 영상+메모용 강의 데이터 (빌드 32): 재정학 45–104강 원본 강의 데이터와 같은 60강.
+      // n=강 번호, t=제목, p=교재 쪽수, d=영상 길이, v=YouTube 영상 ID, s=핵심 한 줄, c=핵심 개념.
+      var VIDEO_LECTURES = [{"n": 45, "t": "제6장 정부지출과 예산제도 (3) - 3. 예산제도", "p": "p.255-260", "d": "16:45", "v": "Jh5GWfr0jco", "s": "예산제도는 돈의 쓰임새를 어떻게 분류하고 통제할 것인가에 대한 제도 선택이다.", "c": ["품목별 예산: 투입 항목 중심, 통제는 강하지만 성과 파악이 어렵다", "성과주의 예산: 산출·성과 중심, 단위 원가와 목표가 핵심이다", "계획예산(PPBS): 프로그램·장기 계획과 비용편익을 연결한다", "영기준 예산: 매년 모든 사업을 원점에서 재검토한다"]}, {"n": 46, "t": "제6장 정부지출과 예산제도 (4) - 4. 우리나라 예산제도", "p": "p.261-265", "d": "9:23", "v": "4TTBoeuJmmo", "s": "우리나라 예산 과정은 편성·심의·집행·결산의 순서와 권한 배분으로 이해한다.", "c": ["예산 편성은 기획재정부 중심, 심의·확정은 국회 권한이다", "회계연도와 예산의 종류: 일반회계와 특별회계, 기금을 구분한다", "집행 단계의 통제와 결산·감사 과정을 연결해서 본다"]}, {"n": 47, "t": "제7장 비용-편익분석 (1) - 1. 개요", "p": "p.266", "d": "7:55", "v": "2lfn6ijRlO0", "s": "비용-편익분석은 정부 사업을 돈으로 환산해 사회적 순편익이 있는지를 따지는 틀이다.", "c": ["민간 사업과 달리 시장가격이 없거나 왜곡된 경우를 다룬다", "비용과 편익을 모두 현재가치로 환산해 비교한다", "재분배 효과와 효율성 효과를 구분해서 보는 시각이 필요하다"]}, {"n": 48, "t": "제7장 비용-편익분석 (2) - 2. 의사결정기준 (NPV, IRR, BC ratio)", "p": "p.267-274", "d": "43:56", "v": "BLcxgiYiG5w", "s": "사업 채택 기준은 서로 다른 할인율 가정 때문에 가끔 충돌한다.", "c": ["NPV: 편익의 현재가치 합에서 비용의 현재가치 합을 뺀 값, 양이면 채택", "B/C 비율: 편익 현재가치 / 비용 현재가치, 1보다 크면 채택", "IRR: NPV를 0으로 만드는 할인율, 자본비용과 비교한다"]}, {"n": 49, "t": "제7장 비용-편익분석 (3) - 3. 비용과 편익의 유형", "p": "p.274-275", "d": "11:25", "v": "RQyxIuFVsUw", "s": "비용·편익을 분류하는 목적은 누락과 이중 계산을 막는 것이다.", "c": ["직접 효과와 간접 효과, 실질 효과와 금전적 효과를 구분한다", "유형 효과와 무형 효과를 구분하고, 무형이라고 제외하지 않는다", "내부 효과와 외부 효과(외부성)를 구분한다"]}, {"n": 50, "t": "제7장 비용-편익분석 (4) - 4. 비용과 편익의 측정 (1) - 시장가격이 변하는 경우", "p": "p.276-277", "d": "15:44", "v": "lixnHEw2WAI", "s": "사업으로 가격이 바뀌면 소비자잉여와 생산자잉여의 변화로 편익을 잰다.", "c": ["수요가 늘거나 공급이 늘면 가격과 거래량이 함께 바뀐다", "소비자잉여 증가분과 생산자잉여 변화분을 합해 순편익을 구한다", "시장가격 자체가 아니라 잉여의 변화가 편익의 핵심이다"]}, {"n": 51, "t": "제7장 비용-편익분석 (5) - 4. 비용과 편익의 측정 (2) - 시장의 불완전성이 존재할 때", "p": "p.278-280", "d": "14:27", "v": "uzhyB2MqXVM", "s": "시장이 왜곡돼 있으면 시장가격이 아니라 사회적 기회비용, 즉 그림자 가격을 써야 한다.", "c": ["독점, 세금, 보조금, 실업이 있으면 시장가격은 한계사회적 비용과 달라진다", "그림자 가격: 왜곡을 제거한 사회적 가치 평가액이다", "노동의 기회비용은 실업 여부에 따라 달라질 수 있다"]}, {"n": 52, "t": "제7장 비용-편익분석 (6) - 4. 비용과 편익의 측정 (3) - 무형의 편익·비용의 평가", "p": "p.281-284", "d": "25:16", "v": "GwL9PvFw-Jc", "s": "시장에 거래되지 않는 가치도 방법만 정하면 화폐 가치로 추정할 수 있다.", "c": ["조건부 가치측정법: 설문으로 지불의사액을 직접 묻는다", "헤도닉 가격법: 주택 가격 등에서 환경·편의의 암묵 가격을 분리한다", "여행비용법: 방문 비용과 방문 횟수로 수요를 추정한다", "대체비용·회피비용법: 같은 효과를 얻는 데 드는 비용으로 대리한다"]}, {"n": 53, "t": "제7장 비용-편익분석 (7) - 5. 적정할인율의 선정", "p": "p.285-288", "d": "25:32", "v": "naJjV_eTi4U", "s": "할인율은 미래를 현재로 가져오는 환율과 같아서, 조금만 달라져도 결론이 뒤집힌다.", "c": ["사회적 시간선호율: 사회가 현재 소비와 미래 소비를 교환하는 비율이다", "자본의 기회비용: 민간 투자에서 얻을 수 있었던 수익률이다", "두 개념을 가중평균하거나, 재원 조달 방식에 따라 달리 적용하는 논의가 있다"]}, {"n": 54, "t": "제7장 비용-편익분석 (8) - 6. 위험과 불확실성에 대한 고려", "p": "p.289-291", "d": "15:22", "v": "oE0ggD3Zv8w", "s": "불확실한 사업은 기대값만 보지 말고, 분산과 위험 태도까지 함께 본다.", "c": ["기대값, 민감도 분석, 시나리오 분석으로 결과 범위를 확인한다", "확실성 등가: 불확실한 편익과 같은 효용을 주는 확실한 금액이다", "위험 프리미엄은 기대값에서 확실성 등가를 뺀 값이다"]}, {"n": 55, "t": "제8장 조세의 기초이론 (1) - 1. 조세의 개념 및 분류", "p": "p.327-332", "d": "28:10", "v": "6rs4_M_teHM", "s": "조세 분류는 누가, 무엇에, 어떻게 매기는지를 정리하는 언어다.", "c": ["국세와 지방세, 직접세와 간접세, 종가세와 종량세를 구분한다", "비례세·누진세·역진세는 소득이 늘 때 평균세율의 움직임으로 구분한다", "인세와 물세, 목적세와 보통세의 구분도 함께 정리한다"]}, {"n": 56, "t": "제8장 조세의 기초이론 (2) - 2. 조세체계의 결정요인", "p": "p.333-336", "d": "31:21", "v": "lx6v9gtLO6E", "s": "나라마다 조세체계가 다른 이유는 재정 수요와 경제·행정 여건이 다르기 때문이다.", "c": ["필요한 세입 규모, 소득·소비 구조, 행정 능력과 징세 비용이 체계를 제약한다", "정치적 수용성과 형평성에 대한 사회적 선호도 영향을 준다", "발전 단계에 따라 간접세 중심에서 직접세 중심으로 이동하는 경향이 논의된다"]}, {"n": 57, "t": "제8장 조세의 기초이론 (3) - 3. 과세의 규범적 기준 - 효율성과 공평성", "p": "p.337-343", "d": "37:39", "v": "ZXSlMg-hSbY", "s": "좋은 조세는 왜곡은 작게, 부담은 공정하게 나누는 조세다.", "c": ["효율성: 중립성을 유지해 상대가격 왜곡과 초과부담을 줄인다", "수평적 공평: 같은 능력은 같은 부담, 수직적 공평: 다른 능력은 다르게 부담", "응능 원칙(지불 능력)과 응익 원칙(받은 편익)이 공평의 서로 다른 기준이다"]}, {"n": 58, "t": "제8장 조세의 기초이론 (4) - 4. 경제적 능력의 측정 문제", "p": "p.343-346", "d": "24:07", "v": "_i-VFNQ27WE", "s": "능력에 따라 과세하려면 능력을 무엇으로 잴 것인지부터 정해야 한다.", "c": ["소득, 소비, 자산은 각각 다른 시점과 다른 형태의 능력을 반영한다", "연간 소득은 생애 소득을 제대로 반영하지 못할 수 있다", "소득의 정의에 포함할 항목(이득, 귀속 소득 등)이 과세 형평을 좌우한다"]}, {"n": 59, "t": "제9장 조세의 전가와 귀착 (1) - 조세의 전가와 귀착의 기본개념", "p": "p.347-350", "d": "32:54", "v": "bw7166yisXU", "s": "법적으로 내는 사람과 실제로 부담하는 사람은 다를 수 있다.", "c": ["전가: 조세 부담이 가격 조정을 통해 다른 사람에게 옮겨가는 과정이다", "귀착: 전가가 끝난 뒤 최종적으로 부담이 떨어지는 상태다", "부분균형은 한 시장만, 일반균형은 모든 시장과 요소 이동까지 본다"]}, {"n": 60, "t": "제9장 조세의 전가와 귀착 (2) - 부분균형분석 (1) - 물품세의 귀착 + 조세수입 + 초과부담", "p": "p.351-353", "d": "22:03", "v": "yXltf9agv1I", "s": "물품세는 수요곡선과 공급곡선 사이를 벌려 거래량을 줄인다.", "c": ["단위세를 매기면 공급곡선(또는 수요곡선)이 세액만큼 이동한다", "소비자 가격 상승분과 생산자 가격 하락분의 합이 세액이다", "조세수입은 세액 × 과세 후 거래량, 초과부담은 사라진 거래에서 생긴 삼각형이다"]}, {"n": 61, "t": "제9장 조세의 전가와 귀착 (3) - 부분균형분석 (2) - 상대적 조세부담과 탄력성", "p": "p.354-358", "d": "25:54", "v": "vwDij9t8clU", "s": "탄력성이 작은 쪽이 조세를 더 많이 떠안는다.", "c": ["수요가 비탄력적이면 소비자 부담이 커지고, 공급이 비탄력적이면 생산자 부담이 커진다", "완전 비탄력적인 쪽이 세액 전부를 부담한다", "부담 비율은 상대 탄력성의 역비율로 정리된다"]}, {"n": 62, "t": "제9장 조세의 전가와 귀착 (4) - 부분균형분석 (3) - 노동귀착 + 자본귀착 + 토지귀착 + 이윤귀착", "p": "p.359-362", "d": "33:30", "v": "ZSLQCgPztXg", "s": "요소 시장에서도 같은 원리가 적용되지만, 요소 공급 탄력성이 다르다.", "c": ["노동세: 노동 공급 탄력성과 수요 탄력성에 따라 근로자와 고용주가 나눈다", "자본세: 자본 이동성이 크면 자본 부담이 작아지고 노동·소비자에게 전가될 수 있다", "토지세: 토지 공급이 비탄력적이면 토지 소유자가 대부분 부담한다", "이윤세: 정상 이윤과 초과 이윤을 구분해야 한다"]}, {"n": 63, "t": "제9장 조세의 전가와 귀착 (5) - 부분균형분석 (4) - 독점시장의 경우 (50% 전가 + 100% 이상 전가)", "p": "p.363-371", "d": "36:08", "v": "vl-CzP6c9q8", "s": "독점에서는 경쟁시장과 달리 전가율이 100%를 넘을 수도 있다.", "c": ["선형 수요·일정한 한계비용에서는 독점자가 단위세의 절반만 전가하는 결과가 나온다", "수요 곡선의 볼록성과 비용 조건에 따라 전가율은 달라진다", "이윤세는 한계조건을 바꾸지 않으면 전가가 제한적이다"]}, {"n": 64, "t": "제9장 조세의 전가와 귀착 (6) - 부분균형분석 (5) - 일반균형분석 (하버거 모형)", "p": "p.372-378", "d": "42:45", "v": "upzVAbp6s0g", "s": "하버거 모형은 한 부문의 자본세가 경제 전체로 퍼지는 과정을 본다.", "c": ["두 부문·두 요소(노동·자본) 모형에서 자본은 부문 간 이동이 가능하다", "과세 부문의 자본 수익률이 떨어지면 자본이 비과세 부문으로 이동한다", "결과적으로 비과세 부문의 자본 수익률도 떨어지고, 요소 가격과 산출 구성이 바뀐다"]}, {"n": 65, "t": "제10장 조세와 효율성; 초과부담 (1) - 초과부담의 개념 및 발생 원인", "p": "p.435-436", "d": "14:55", "v": "UANrbNQW4qU", "s": "초과부담은 세금이 거둬간 돈보다 더 큰 사회적 손실이다.", "c": ["조세수입은 정부로 이전될 뿐이지만, 초과부담은 누구에게도 돌아가지 않는 순손실이다", "원인은 상대가격 왜곡으로 인한 대체 효과다", "소득 효과만 있다면 초과부담은 생기지 않는다"]}, {"n": 66, "t": "제10장 조세와 효율성; 초과부담 (2) - 부분균형분석적 접근 (1) - 개인 측면에서 본 물품세 초과부담", "p": "p.436-440", "d": "35:44", "v": "HvxWpHtFLCo", "s": "개인의 선택으로 보면 초과부담은 보상수요 곡선 아래 면적으로 측정된다.", "c": ["가격 상승 후에도 원래 효용을 유지하려면 필요한 보상액이 보상변화다", "등가변화와 보상변화는 기준 효용이 달라서 값이 다를 수 있다", "보상수요 곡선은 소득 효과를 제거한 수요다"]}, {"n": 67, "t": "제10장 조세와 효율성; 초과부담 (3) - 부분균형분석적 접근 (2) - 시장 측면에서 본 물품세 초과부담", "p": "p.441-445", "d": "31:47", "v": "iJSrdTMKI7Q", "s": "시장 그림에서 초과부담은 거래량 감소로 사라진 잉여의 삼각형이다.", "c": ["탄력성이 클수록, 세율이 높을수록 초과부담은 커진다", "세율이 두 배가 되면 초과부담은 네 배 가까이 커진다(세율의 제곱 비례)", "조세수입과 초과부담은 세율이 높아질수록 다르게 움직인다"]}, {"n": 68, "t": "제10장 조세와 효율성; 초과부담 (4) - 부분균형분석적 접근 (3) - 근로소득세 초과부담 + 보조금 초과부담", "p": "p.446-450", "d": "30:03", "v": "6tNQJU6_iUE", "s": "소득세는 여가와 소비의 선택을, 보조금은 재화의 상대가격을 왜곡한다.", "c": ["근로소득세는 실질 임금을 낮춰 노동-여가 선택을 왜곡한다", "가격 보조금은 보조 대상 재화의 소비를 과도하게 늘린다", "보조금도 세금과 마찬가지로 초과부담 삼각형을 만든다"]}, {"n": 69, "t": "제10장 조세와 효율성; 초과부담 (5) - 일반균형분석적 접근 (1) - 경제적 효율성의 조건 (두 재화 간 선택 등)", "p": "p.451-452", "d": "13:48", "v": "gjIfGved4KU", "s": "일반균형 효율 조건은 모든 선택의 한계 교환 비율이 일치하는 상태다.", "c": ["소비: 모든 소비자의 MRS가 같다", "생산: 모든 생산자의 MRTS가 같다", "생산과 소비 종합: MRS = MRT가 성립한다"]}, {"n": 70, "t": "제10장 조세와 효율성; 초과부담 (6) - 일반균형분석적 접근 (2) - 초과부담 발생 원인", "p": "p.452-453", "d": "19:42", "v": "Uy-t8Okn6TE", "s": "일반균형에서 초과부담의 본질은 한계 대체율과 한계 변환율의 괴리다.", "c": ["조세가 없으면 소비자의 교환 비율과 생산자의 변환 비율이 일치한다", "조세가 붙으면 소비자가 보는 가격 비율과 생산자가 보는 가격 비율이 달라진다", "그 괴리만큼 자원이 효율적으로 배분되지 않는다"]}, {"n": 71, "t": "제10장 조세와 효율성; 초과부담 (7) - 일반균형분석적 접근 (3) - 소득세 vs 개별소비세", "p": "p.454-455", "d": "15:57", "v": "sgngVN7BMXk", "s": "소득세와 개별소비세는 왜곡하는 선택의 종류가 다르다.", "c": ["포괄적 소득세는 여가-소비 선택을 왜곡하지만 재화 간 선택은 왜곡하지 않는다", "개별소비세는 특정 재화의 상대가격을 바꿔 재화 간 선택을 왜곡한다", "같은 세수라도 어떤 선택을 왜곡하느냐에 따라 초과부담 크기가 달라진다"]}, {"n": 72, "t": "제11장 최적과세론 (1) - 개요", "p": "p.456", "d": "7:29", "v": "6O9MCnzFbXs", "s": "최적과세는 주어진 세수를 가장 작은 효율 손실과 공평한 부담으로 거두는 문제다.", "c": ["효율성만 보면 왜곡이 작은 곳에, 공평성만 보면 능력 있는 곳에 매겨야 한다", "최적과세는 두 목표의 균형점을 찾는 이론이다", "정보의 한계(개인의 능력을 직접 관찰할 수 없음)가 제약을 만든다"]}, {"n": 73, "t": "제11장 최적과세론 (2) - 2. 물품세의 최적과세 + 램지규칙과 역탄력성 법칙 + 콜렛-헤이그 규칙", "p": "p.457-462", "d": "42:29", "v": "fOKIlVsR6jQ", "s": "램지 규칙은 왜곡을 최소화하기 위해 탄력성이 작은 재화에 더 높은 세율을 매긴다.", "c": ["역탄력성 법칙: 최적 세율은 수요 탄력성에 반비례한다", "탄력성이 작으면 세금을 매겨도 소비가 크게 줄지 않아 초과부담이 작다", "콜렛-헤이그 규칙: 여가와 보완적인 재화에는 더 높은 세율을 매긴다"]}, {"n": 74, "t": "제11장 최적과세론 (3) - 3. 소득의 최적과세 - 최적선형누진소득세 + 최적비선형소득세 + 스턴의 연구 + 에지워드의 최적소득세 모형", "p": "p.463-467", "d": "35:58", "v": "pcW-dhqzmh0", "s": "최적소득세는 한계세율 구조를 통해 재분배와 노동 의욕 사이의 균형을 찾는다.", "c": ["선형소득세: 일정한 한계세율 + 정액 보조금(음의 소득세 형태) 구조다", "비선형소득세: 소득 구간별로 한계세율을 다르게 정할 수 있다", "에지워드 모형: 한계효용 체감과 동일 효용 함수 가정 아래에서는 완전 평등이 도출되지만, 노동 공급 반응을 넣으면 달라진다"]}, {"n": 75, "t": "제11장 최적과세론 (4) - 4. 최적과세를 위한 고려사항 + 세제 운용에 따른 비용 + 탈세 + 알링햄-샌드모 모형", "p": "p.468-473", "d": "28:04", "v": "0yYxxfuGne4", "s": "이론상의 최적 세율은 징세 비용과 탈세 가능성 앞에서는 수정돼야 한다.", "c": ["징세 비용: 세금 자체 외에 행정 비용과 납세 순응 비용이 있다", "탈세: 적발 확률과 벌금 수준이 탈세 결정을 좌우한다", "알링햄-샌드모 모형: 기대효용 극대화로 탈세 여부를 설명한다"]}, {"n": 76, "t": "제12장 개별조세이론 (1) - 소득세 (1) - 헤이그-사이먼즈의 포괄적 소득세 + 우리나라 소득세", "p": "p.515-518", "d": "26:26", "v": "hMOK4UmprZ0", "s": "포괄적 소득은 소비에 순자산 증가를 더한 개념이다.", "c": ["헤이그-사이먼즈 소득 = 소비 + 순자산 증가분", "포괄적 소득세는 소득 원천에 따른 차별을 없애는 것이 이상이다", "현실 소득세는 각종 공제와 분리 과세로 이상에서 벗어난다"]}, {"n": 77, "t": "제12장 개별조세이론 (2) - 소득세 (2) - 공제제도 + 세율구조 + 과세단위 + 인플레이션과 소득세", "p": "p.519-523", "d": "37:20", "v": "YeME5Coyick", "s": "소득세의 세부 설계는 공제, 세율, 과세 단위, 물가 조정 네 축으로 정리된다.", "c": ["공제: 소득공제는 한계세율에 따라 혜택이 다르고, 세액공제는 소득과 무관하게 일정하다", "세율구조: 누진 구조에서는 한계세율과 평균세율을 구분한다", "과세단위: 개인 단위와 가구 단위는 합산 여부와 공평 판단이 다르다", "인플레이션: 명목 소득 증가가 실질 부담을 높이는 브래킷 크리프를 만든다"]}, {"n": 78, "t": "제12장 개별조세이론 (3) - 법인세 - 법인세 근거 (통합주의 vs 절대주의) + 법인세 과세대상 + 법인세의 감가상각과 FIFO", "p": "p.524-533", "d": "45:27", "v": "hVXkBWwY0v0", "s": "법인세 논쟁의 출발점은 법인을 주주와 별개의 과세 주체로 볼 것인가이다.", "c": ["절대주의(분리주의): 법인을 독립된 납세 주체로 보고 법인세와 소득세를 별도로 과세한다", "통합주의: 법인세는 주주 소득세의 원천징수 성격으로 보고 이중 과세를 조정한다", "감가상각과 재고 평가(FIFO·LIFO)는 인플레이션 하에서 과세 소득을 다르게 만든다"]}, {"n": 79, "t": "제12장 개별조세이론 (4) - 부가가치세 (1) - 소비세 개요 + 부가세 연혁 + 개념과 유형 + 과세방법", "p": "p.534-539", "d": "26:04", "v": "4MgN2qPhXQw", "s": "부가가치세는 각 단계의 부가가치에만 세금을 매겨 누적 효과를 피한다.", "c": ["소비형·소득형·총생산형 부가가치세는 투자재 공제 범위에서 갈린다", "공제법(전단계 세액 공제)이 가장 널리 쓰이는 방식이다", "매출세와 달리 단계별 누적 과세가 생기지 않는다"]}, {"n": 80, "t": "제12장 개별조세이론 (5) - 부가가치세 (2) - 면세와 영세율 + VAT의 장단점", "p": "p.540-542", "d": "17:03", "v": "xx6xBrNY844", "s": "면세와 영세율은 비슷해 보이지만 매입 세액 공제 여부에서 정반대다.", "c": ["영세율: 세율은 0이지만 매입 세액은 환급·공제된다", "면세: 매출에 세금이 없으면서 매입 세액 공제도 안 된다", "면세는 전단계 세액이 원가에 남아 사실상 누적 효과를 남긴다"]}, {"n": 81, "t": "제12장 개별조세이론 (6) - 자산세", "p": "p.543-549", "d": "13:34", "v": "jBIEcuEPQvY", "s": "자산세는 보유, 이전, 이득이라는 서로 다른 시점에 매겨진다.", "c": ["재산세·보유세: 자산 보유 자체에 대한 과세다", "상속세·증여세: 무상 이전에 대한 과세로, 세대 간 이전과 형평이 쟁점이다", "자본이득세: 자산 가치 상승 실현 시점에 과세하며, 실현 시점 선택이 왜곡을 만든다"]}, {"n": 82, "t": "제13장 조세의 경제적 효과 (1) - 1. 조세와 노동공급 - 비례소득세의 효과", "p": "p.550-553", "d": "20:53", "v": "KlWUPIL1txY", "s": "비례소득세의 노동공급 효과는 대체효과와 소득효과의 방향이 반대라서 결론이 모호하다.", "c": ["대체효과: 실질 임금이 떨어져 여가가 상대적으로 싸지므로 노동이 줄어든다", "소득효과: 소득이 줄어들어 여가를 줄이고 노동을 늘리는 방향으로 작용한다", "순효과는 두 효과의 상대 크기에 달려 있다"]}, {"n": 83, "t": "제13장 조세의 경제적 효과 (2) - 1. 조세와 노동공급 - 누진소득세의 효과", "p": "p.554-561", "d": "32:32", "v": "CcHZ1_E2OP0", "s": "누진세에서는 평균세율보다 한계세율이 선택을 좌우한다.", "c": ["노동 결정의 기준은 한계세율 적용 후 실질 임금이다", "소득 구간이 올라가면 한계세율이 높아져 대체효과가 커진다", "세율 구조가 꺾이는 지점에서는 예산선이 꺾이는 형태가 된다"]}, {"n": 84, "t": "제13장 조세의 경제적 효과 (3) - 2. 조세와 저축 - 이자소득세의 효과", "p": "p.562-568", "d": "30:50", "v": "Y5h_De1aiKY", "s": "이자소득세도 현재 소비와 미래 소비 사이의 선택을 왜곡한다.", "c": ["대체효과: 미래 소비의 가격이 올라가 현재 소비가 늘고 저축이 줄어든다", "소득효과: 이자 소득이 줄어 목표 저축액을 맞추기 위해 저축을 늘릴 수 있다", "순효과는 모호하며, 저축의 이자 탄력성에 달려 있다"]}, {"n": 85, "t": "제13장 조세의 경제적 효과 (3) - 3. 조세와 위험부담", "p": "p.569-575", "d": "20:25", "v": "hwhGgUp1lZo", "s": "손실을 공제해 주는 세금은 위험 자산 투자에 대한 태도를 바꾼다.", "c": ["손실 전액 공제(완전 손실 상계)가 되면 정부가 위험의 일부를 나눠 가진다", "그 결과 위험 회피적인 투자자도 위험 자산 비중을 늘릴 수 있다", "손실 공제가 제한되면 이 효과는 약해진다"]}, {"n": 86, "t": "제13장 조세의 경제적 효과 (4) - 4. 조세와 인적자본형성 + 5. 조세와 투자", "p": "p.576-582", "d": "20:46", "v": "Mm2AG25Br_A", "s": "교육과 설비 투자도 세후 수익률로 판단하므로 세제가 투자 결정을 바꾼다.", "c": ["인적자본: 교육 비용 공제 여부와 미래 소득 과세가 교육 수익률에 영향을 준다", "물적 투자: 감가상각 제도와 투자 세액 공제가 자본 비용을 바꾼다", "투자에 대한 과세는 한계 투자 프로젝트의 채택 여부를 바꿀 수 있다"]}, {"n": 87, "t": "제13장 조세의 경제적 효과 (5) - 6. 조세와 기업의 자본구조 + 7. 조세와 배당정책", "p": "p.582-589", "d": "27:25", "v": "imN1WCTp7_o", "s": "이자 비용은 공제되고 배당은 공제되지 않는 비대칭이 자본구조를 왜곡한다.", "c": ["부채 이자는 비용으로 인정돼 법인세를 줄이지만, 배당은 그렇지 않다", "그 결과 부채 의존도가 높아지는 유인이 생긴다", "배당 이중 과세는 배당보다 유보·자사주 매입을 유리하게 만들 수 있다"]}, {"n": 88, "t": "제14장 소득분배 및 사회보장 (1) - 1. 소득분배이론 (1); 분배정의 + 소득재분배의 이론적 근거", "p": "p.643-648", "d": "28:58", "v": "cI3v2sX39mc", "s": "재분배가 정당한지는 어떤 정의관을 갖느냐에 따라 답이 달라진다.", "c": ["공리주의: 총 효용을 극대화하는 분배가 정당하다", "롤스: 가장 불리한 사람의 처지를 개선하는 분배가 정당하다", "자유주의: 과정이 공정하면 결과 분배는 개입 대상이 아니다"]}, {"n": 89, "t": "제14장 소득분배 및 사회보장 (2) - 1. 소득분배이론 (2); 소득불평등 측정방법 (로렌츠곡선 + 지니계수 + 10분위 + 5분위 + 앳킨슨지수)", "p": "p.649-654", "d": "29:40", "v": "f8jDDqmhn1E", "s": "불평등 측정은 분포 전체를 보는지, 특정 구간을 보는지, 불평등 회피도를 반영하는지가 다르다.", "c": ["로렌츠곡선: 인구 누적 비율과 소득 누적 비율의 관계를 그린다", "지니계수: 완전균등선과 로렌츠곡선 사이 면적의 비율이다", "10분위·5분위 배율: 상위와 하위 구간의 소득 비율로 직관적이다", "앳킨슨지수: 사회의 불평등 회피도를 명시적으로 반영한다"]}, {"n": 90, "t": "제14장 소득분배 및 사회보장 (3) - 1. 소득분배이론 (3); NIT(부의소득세) + EITC(근로장려세)", "p": "p.655-661", "d": "39:50", "v": "8iR9G6TcLHA", "s": "부의소득세와 근로장려세는 일하지 않는 사람과 일하는 사람을 다르게 대우한다.", "c": ["NIT: 보장 소득 수준에서 소득이 늘면 보조금이 일정 비율로 줄어든다", "EITC: 근로 소득이 일정 구간까지는 보조금이 늘고, 이후 줄어드는 구조다", "NIT는 일할 유인을 약화시킬 수 있고, EITC는 저소득 근로 유인을 강화하는 방향이다"]}, {"n": 91, "t": "제14장 소득분배 및 사회보장 (4) - 1. 소득분배이론 (4); 보조금제도 비교 (현금보조 vs 현물보조 vs 가격보조)", "p": "p.662-665", "d": "26:07", "v": "oKMwN669m-I", "s": "같은 금액이라도 현금, 현물, 가격 보조는 받는 사람의 선택을 다르게 바꾼다.", "c": ["현금보조: 선택의 자유가 가장 크고, 효용 관점에서 유리하다", "현물보조: 특정 재화 소비를 보장하지만, 구속적이면 효용 손실이 생길 수 있다", "가격보조: 상대가격을 바꿔 특정 재화 소비를 늘리지만 초과부담이 생긴다"]}, {"n": 92, "t": "제14장 소득분배 및 사회보장 (5) - 2. 사회보장제도 (사회보험 + 공공부조 + 사회복지서비스)", "p": "p.666-670", "d": "23:01", "v": "L5sCkAuVaOw", "s": "사회보장은 기여와 급여의 연결 여부로 성격이 갈린다.", "c": ["사회보험: 기여를 전제로 급여가 정해지며, 소득 비례성이 있다", "공공부조: 자산·소득 조사(미인즈 테스트)를 거쳐 최저 생활을 보장한다", "사회복지서비스: 현금 대신 돌봄·상담 등 서비스를 제공한다"]}, {"n": 93, "t": "제14장 소득분배 및 사회보장 (6) - 3. 사회보험제도; 국민연금제도", "p": "p.670-677", "d": "48:34", "v": "vppo7aUhU24", "s": "국민연금 논쟁의 핵심은 부과식과 적립식, 세대 간 형평, 지속 가능성이다.", "c": ["부과식: 현역 세대의 보험료로 현 수급자에게 지급한다", "적립식: 자신의 보험료를 쌓아 자신의 연금을 마련한다", "저출산·고령화는 부과식의 부양 비율을 악화시킨다"]}, {"n": 94, "t": "제14장 소득분배 및 사회보장 (7) - 3. 사회보험제도 (2); 의료보험제도 + 고용보험제도", "p": "p.678-683", "d": "32:26", "v": "MZmEwFxnZdM", "s": "의료보험과 고용보험은 모두 도덕적 해이와 역선택 문제를 안고 있다.", "c": ["의료보험: 본인 부담이 낮아지면 의료 이용이 과도해지는 도덕적 해이가 생긴다", "고용보험: 실업 급여가 구직 노력을 약화시킬 수 있지만, 탐색 기간을 보장하는 순기능도 있다", "역선택을 막기 위해 강제 가입과 위험 분산이 사용된다"]}, {"n": 95, "t": "제15장 공공요금이론 (1) - 1. 공공요금 부과의 목적", "p": "p.684-685", "d": "15:02", "v": "b4JwNhWwds0", "s": "공공요금은 단순한 수입원이 아니라 효율, 재원, 형평을 함께 달성해야 한다.", "c": ["효율 목적: 한계비용에 가까운 가격으로 과소·과다 소비를 막는다", "재원 목적: 공공서비스 비용을 이용자에게서 회수한다", "형평 목적: 저소득층의 필수 서비스 접근을 보장한다"]}, {"n": 96, "t": "제15장 공공요금이론 (2) - 2. 공공요금의 설정원리 (1) - 한계비용 가격설정 + 성수기와 비수기 가격설정", "p": "p.686-688", "d": "23:46", "v": "BF8ffRTft4Y", "s": "한계비용 가격은 효율적이지만, 자연독점에서는 적자를 남긴다.", "c": ["MC 가격: 가격 = 한계비용이면 소비자의 한계 편익과 생산 비용이 일치한다", "규모의 경제로 AC가 MC보다 높으면 MC 가격에는 적자가 생긴다", "피크로드 가격: 성수기에는 용량 비용까지 반영해 높게, 비수기에는 낮게 매긴다"]}, {"n": 97, "t": "제15장 공공요금이론 (3) - 2. 공공요금의 설정원리 (2) - 평균비용 가격설정 + 램지규칙 + 이부가격제 + 가격차별", "p": "p.689-699", "d": "44:26", "v": "jdfX7UKtZbM", "s": "적자를 피하면서 효율 손실을 줄이는 방법은 가격 구조를 나누는 것이다.", "c": ["AC 가격: 가격 = 평균비용으로 적자는 없지만 MC 가격보다 생산량이 적다", "램지 가격: 적자 보전 조건 아래에서 탄력성이 작은 시장에는 더 높은 가격을 매긴다", "이부가격제: 기본 요금으로 고정비를 회수하고 사용 요금은 MC에 가깝게 매긴다", "가격차별: 수요 집단별로 다른 가격을 매겨 잉여를 회수한다"]}, {"n": 98, "t": "제16장 공채론 (1) - 1. 공채의 개념 및 구분 - 공채의 개념 + 조세와 공채의 차이점 + 공채부담의 변화", "p": "p.700-703", "d": "17:18", "v": "hYxYe-LwJzM", "s": "공채는 세입이지만, 미래 상환 의무를 동반한다는 점에서 조세와 다르다.", "c": ["공채는 현재 세대의 부담을 미래로 미루는 수단이다", "내국채와 외국채, 단기채와 장기채의 구분이 부담 경로를 바꾼다", "공채 부담은 발행 시점이 아니라 상환 재원을 마련할 때 실질화된다는 시각이 있다"]}, {"n": 99, "t": "제16장 공채론 (2) - 공채의 경제적 효과 (승수효과 + 구축효과 + RET)", "p": "p.704-707", "d": "48:35", "v": "dzsaqT80pH0", "s": "공채로 재원을 조달한 지출은 승수 효과와 구축 효과를 동시에 일으킨다.", "c": ["승수효과: 정부 지출 증가가 소득을 연쇄적으로 늘린다", "구축효과: 공채 발행이 금리를 올려 민간 투자를 줄인다", "리카도 동등성 정리(RET): 미래 세금을 예상하면 현재 소비가 늘지 않아 공채와 조세가 동등해진다는 주장이다"]}, {"n": 100, "t": "제16장 공채론 (3) - 3. 공채관리 + 4. 공채부담학설 + 5. 재원조달 고려사항", "p": "p.707-713", "d": "26:01", "v": "brym_uuUftc", "s": "공채 관리는 금리와 만기 구조를 통해 상환 부담과 시장 영향을 조절하는 일이다.", "c": ["공채관리: 만기 분산, 금리 변동 위험, 유동성 관리가 핵심이다", "공채부담학설: 고전파, 케인스파, 현대적 시각이 부담의 주체와 시점을 다르게 본다", "재원조달 선택은 경기 상황, 금리, 세제의 왜곡 비용을 함께 고려한다"]}, {"n": 101, "t": "제17장 지방재정 (1) - 1. 지방재정의 개념 및 특징 + 2. 중앙집권 vs 지방분권", "p": "p.714-717", "d": "22:51", "v": "d3BcCMt4jho", "s": "지방재정은 지역 주민의 선호가 다르기 때문에 중앙재정과 다른 논리가 필요하다.", "c": ["지방정부는 지역 공공재 공급에 비교 우위가 있다", "중앙집권은 규모의 경제와 형평에, 지방분권은 선호 반영과 경쟁에 유리하다", "어느 수준이 어떤 서비스를 맡을지가 권한 배분의 핵심이다"]}, {"n": 102, "t": "제17장 지방재정 (2) - 2. 오우츠의 분권화 정리와 티부 모형", "p": "p.717-720", "d": "24:33", "v": "Nx3ydT2o86A", "s": "오우츠와 티부는 지방분권이 왜 효율적일 수 있는지를 서로 다른 방식으로 설명한다.", "c": ["오우츠의 분권화 정리: 지역별 선호가 다르고 외부효과가 없으면, 지방 공급이 중앙 일괄 공급보다 효율적이다", "티부 모형: 주민이 발로 투표해 선호에 맞는 지역을 선택하면, 지방정부 간 경쟁이 선호를 드러낸다"]}, {"n": 103, "t": "제17장 지방재정 (3) - 4. 지방정부의 재원조달 + 5. 보조금 이론", "p": "p.720-730", "d": "52:06", "v": "ZxS25DWHayo", "s": "지방정부 보조금은 무조건인지 조건부인지, 정액인지 정률인지에 따라 효과가 완전히 다르다.", "c": ["무조건 보조금: 용도를 정하지 않아 소득 효과만 생긴다", "조건부 보조금: 특정 사업에만 쓰이며, 정률 보조는 상대가격까지 바꾼다", "플라이페이퍼 효과: 보조금이 주민 소득 증가보다 지방 지출을 더 많이 늘리는 현상이다"]}, {"n": 104, "t": "제17장 지방재정 (4) - 6. 지방재정조정제도 + 7. 연성예산제약", "p": "p.731-끝", "d": "9:34", "v": "sX2fsuwxJQM", "s": "지방재정조정은 지역 간 재정 격차를 줄이지만, 구제 기대는 지방정부의 방만한 지출을 부를 수 있다.", "c": ["지방재정조정제도: 지방교부세와 국고보조금으로 재정 능력을 균형화한다", "수평적 조정은 지역 간, 수직적 조정은 중앙과 지방 간의 격차를 다룬다", "연성예산제약: 적자가 나도 중앙이 구제해 줄 것이라는 기대 때문에 지방정부가 지출을 통제하지 않는 현상이다"]}];
       var DOW_KO = ["일","월","화","수","목","금","토"];
 
       /* ---------- 상태 ---------- */
@@ -2754,7 +2864,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
               var p = store.progress[no] || { done:false, memo:"" };
               html += '<div class="lec'+(p.done?" done":"")+'">'
                 + '<button type="button" class="toggle" role="switch" aria-checked="'+(p.done?"true":"false")+'" data-lec="'+no+'" aria-label="'+no+'강 완료 표시"><span class="no">'+no+'</span><span class="st">'+(p.done?"완료":"미완료")+'</span></button>'
-                + '<div class="lec-main"><div class="lec-title">재정학 '+no+'강</div>'
+                + '<div class="lec-main"><div class="lec-title">재정학 '+no+'강<button type="button" class="lec-watch" data-watch="'+no+'">▶ 영상+메모</button></div>'
                 + '<input type="text" data-memo="'+no+'" maxlength="300" placeholder="이 강의 메모" value="'+esc(p.memo||"")+'" autocomplete="off" /></div></div>';
             });
             html += '</div></div>';
@@ -2784,7 +2894,282 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
           });
           memos[j].addEventListener("change", function(){ renderLectures(); });
         }
+        // 영상+메모로 이동
+        var watchBtns = box.querySelectorAll("[data-watch]");
+        for(var w=0;w<watchBtns.length;w++){
+          watchBtns[w].addEventListener("click", function(){
+            videoJumpTo = parseInt(this.getAttribute("data-watch"), 10) || 0;
+            navigateTo("#/video");
+          });
+        }
         updateHomeStats();
+      }
+
+      /* ---------- 영상 + 메모 (빌드 32) ---------- */
+      // 재정학 45–104강 영상을 앱 안에서 보고, 강의별 메모를 남기는 화면.
+      // 완료·메모는 체크리스트와 같은 store.progress[강번호]를 그대로 쓴다
+      // (메모는 user_progress.memo로 닉네임별 서버 동기화, 완료도 서로 보인다).
+      // 마지막으로 본 강의·메모 표시 방식(아래/영상 위)·자동 넘김 설정은
+      // 닉네임별로 이 기기에만 저장한다. 처음 열면 55강부터 시작한다.
+      var videoState = { current: 55, player: null, ready: false, loadedId: 0, hostAlt: false, autoplayNext: true, memoMode: "below", bound: false, nickLoaded: "", endedTimer: 0, listTimer: 0 };
+      var videoJumpTo = 0; // 체크리스트의 '영상+메모' 버튼이 지정하는 강의
+      function videoByNo(no){ for(var i=0;i<VIDEO_LECTURES.length;i++) if(VIDEO_LECTURES[i].n===no) return VIDEO_LECTURES[i]; return null; }
+      function videoWatchUrl(lec){ return "https://www.youtube.com/watch?v=" + lec.v; }
+      function videoLastKey(){ return "ox2_video_last_v1_" + encodeURIComponent(nickname || ""); }
+      function videoModeKey(){ return "ox2_video_memo_mode_v1_" + encodeURIComponent(nickname || ""); }
+      function videoAutoKey(){ return "ox2_video_auto_v1_" + encodeURIComponent(nickname || ""); }
+      function videoLoadPrefs(){
+        videoState.nickLoaded = nickname;
+        var last = 55;
+        try{
+          var raw = localStorage.getItem(videoLastKey());
+          if(raw){ var n = parseInt(raw, 10); if(n >= LEC_FIRST && n <= LEC_LAST) last = n; }
+          videoState.memoMode = localStorage.getItem(videoModeKey()) === "overlay" ? "overlay" : "below";
+          videoState.autoplayNext = localStorage.getItem(videoAutoKey()) !== "0";
+        }catch(e){}
+        videoState.current = last;
+      }
+      function videoSaveLast(){ try{ localStorage.setItem(videoLastKey(), String(videoState.current)); }catch(e){} }
+
+      /* ----- YouTube 플레이어 (IFrame API) ----- */
+      // 오류 153은 임베드 요청에 Referer가 실리지 않을 때 나는 구성 오류다.
+      // API 플레이어는 enablejsapi + origin을 붙여 만들고, 그래도 실패하면
+      // youtube-nocookie 호스트로 한 번 더 시도할 수 있게 '다시 시도'를 둔다.
+      // 패널처럼 임베드 자체가 막힌 환경이면 폴백 안내(YouTube에서 열기)를 띄운다.
+      function videoShowFallback(msg){
+        var fb = $("video-fallback"); if(!fb) return;
+        var m = $("video-fallback-msg"); if(m && msg) m.textContent = msg;
+        var a = $("video-fallback-open"); var lec = videoByNo(videoState.current);
+        if(a && lec) a.href = videoWatchUrl(lec);
+        fb.hidden = false;
+      }
+      function videoHideFallback(){ var fb = $("video-fallback"); if(fb) fb.hidden = true; }
+      function videoEnsureApi(cb){
+        if(window.YT && YT.Player){ cb(); return; }
+        videoState._cbs = videoState._cbs || [];
+        videoState._cbs.push(cb);
+        // 불러오기가 끝내 안 되면(차단된 환경) 검은 화면으로 남지 않게 폴백을 다시 띄운다
+        setTimeout(function(){
+          if(!(window.YT && YT.Player) && currentRoute() === "video" && !videoState.ready)
+            videoShowFallback("영상 플레이어 연결이 늦어지고 있어요. 이 화면(앱 패널)에서는 임베드 재생이 막힐 수 있어요. '다시 시도'를 누르거나 YouTube에서 바로 열어 주세요.");
+        }, 7000);
+        if(videoState._apiLoading) return;
+        videoState._apiLoading = true;
+        var prev = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = function(){
+          if(prev) try{ prev(); }catch(e){}
+          var cbs = videoState._cbs || []; videoState._cbs = [];
+          for(var i=0;i<cbs.length;i++){ try{ cbs[i](); }catch(e){} }
+        };
+        var tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        tag.onerror = function(){ videoShowFallback("영상 플레이어를 불러오지 못했어요. 네트워크를 확인한 뒤 다시 시도하거나, YouTube에서 바로 열어 주세요."); };
+        document.head.appendChild(tag);
+      }
+      function videoCreatePlayer(){
+        var lec = videoByNo(videoState.current); if(!lec) return;
+        if(videoState.player){ videoLoadCurrent(false); return; }
+        var holder = $("video-player-holder"); if(!holder) return;
+        videoHideFallback();
+        videoState.ready = false;
+        holder.innerHTML = '<div id="video-player-target" style="width:100%;height:100%"></div>';
+        var vars = { rel: 0, playsinline: 1, modestbranding: 1, enablejsapi: 1 };
+        try{ if(/^https?:$/.test(location.protocol) && location.origin) vars.origin = location.origin; }catch(e){}
+        var opts = {
+          videoId: lec.v,
+          playerVars: vars,
+          events: {
+            onReady: function(){ videoState.ready = true; videoHideFallback(); },
+            onStateChange: videoOnStateChange,
+            onError: videoOnError
+          }
+        };
+        if(videoState.hostAlt) opts.host = "https://www.youtube-nocookie.com";
+        videoState.loadedId = lec.n;
+        try{ videoState.player = new YT.Player("video-player-target", opts); }
+        catch(err){ videoState.player = null; videoState.loadedId = 0; videoShowFallback("영상 플레이어를 만들지 못했어요. 다시 시도하거나 YouTube에서 바로 열어 주세요."); }
+      }
+      function videoLoadCurrent(autoplay){
+        var lec = videoByNo(videoState.current); if(!lec) return;
+        if(videoState.player && videoState.loadedId === lec.n) return;
+        videoHideFallback();
+        if(videoState.player){
+          try{
+            videoState.loadedId = lec.n;
+            if(autoplay) videoState.player.loadVideoById(lec.v);
+            else videoState.player.cueVideoById(lec.v);
+            return;
+          }catch(e){ try{ videoState.player.destroy(); }catch(e2){} videoState.player = null; videoState.loadedId = 0; }
+        }
+        videoEnsureApi(videoCreatePlayer);
+      }
+      function videoOnStateChange(e){
+        if(!window.YT || e.data !== YT.PlayerState.ENDED) return;
+        var no = videoState.current;
+        // 끝까지 본 강의는 완료로 표시한다 (체크리스트와 같은 기록)
+        if(store){
+          var cur = store.progress[no];
+          if(!(cur && cur.done)){
+            cur = cur || { done: false, memo: "" };
+            cur.done = true; cur.updated_at = nowISO();
+            store.progress[no] = cur;
+            persistSoon(); updateHomeStats();
+          }
+        }
+        refreshVideoMeta();
+        var st = $("video-status");
+        if(no >= LEC_LAST){ if(st) st.textContent = "마지막 강의(104강)까지 다 봤어요. 수고했어요!"; return; }
+        if(videoState.autoplayNext){
+          if(st) st.textContent = no + "강을 끝까지 봤어요. 잠시 뒤 " + (no + 1) + "강으로 넘어가요.";
+          if(videoState.endedTimer) clearTimeout(videoState.endedTimer);
+          videoState.endedTimer = setTimeout(function(){ if(currentRoute() === "video") videoGoTo(no + 1, true); }, 1200);
+        } else if(st){
+          st.textContent = no + "강을 끝까지 봤어요. '다음 강의' 버튼으로 " + (no + 1) + "강으로 넘어갈 수 있어요.";
+        }
+      }
+      function videoOnError(e){
+        var code = e && e.data ? e.data : "";
+        videoShowFallback("영상을 이 화면에서 재생하지 못했어요" + (code ? " (오류 " + code + ")" : "") + ". 153 같은 임베드 오류는 앱 패널처럼 Referer가 제한된 환경에서 날 수 있어요. '다시 시도'는 다른 임베드 방식(youtube-nocookie)으로 한 번 더 불러오고, 그래도 안 되면 YouTube에서 바로 열어 주세요.");
+      }
+      function videoPause(){
+        if(videoState.endedTimer){ clearTimeout(videoState.endedTimer); videoState.endedTimer = 0; }
+        if(videoState.player && typeof videoState.player.pauseVideo === "function"){ try{ videoState.player.pauseVideo(); }catch(e){} }
+      }
+
+      /* ----- 화면 렌더링 ----- */
+      function renderVideoHead(){
+        var lec = videoByNo(videoState.current); if(!lec) return;
+        if($("video-now-no")) $("video-now-no").textContent = "재정학 " + lec.n + "강";
+        if($("video-now-title")) $("video-now-title").textContent = lec.t;
+        if($("video-now-meta")) $("video-now-meta").textContent = lec.p + " · 영상 " + lec.d;
+        if($("video-progress")) $("video-progress").textContent = doneCount() + " / " + LEC_TOTAL + "강 완료";
+        var prev = $("video-prev"), next = $("video-next");
+        if(prev) prev.disabled = lec.n <= LEC_FIRST;
+        if(next) next.disabled = lec.n >= LEC_LAST;
+        var done = !!(store && store.progress[lec.n] && store.progress[lec.n].done);
+        var dt = $("video-done-toggle");
+        if(dt){ dt.setAttribute("aria-checked", done ? "true" : "false"); dt.textContent = done ? "완료 표시 ✓" : "완료 표시"; }
+        var yt = $("video-open-yt"); if(yt) yt.href = videoWatchUrl(lec);
+        if($("video-memo-title")) $("video-memo-title").textContent = lec.n + "강 메모";
+        if($("video-list-count")) $("video-list-count").textContent = "45–104강 · 총 60강";
+      }
+      function renderVideoInfo(){
+        var box = $("video-info"); var lec = videoByNo(videoState.current); if(!box || !lec) return;
+        var html = '<h2>이 강의 핵심</h2><p class="desc" style="font-size:14.5px;color:var(--ink);margin-bottom:0">' + esc(lec.s) + "</p>";
+        if(lec.c && lec.c.length){
+          html += '<div class="fb-expl-label">핵심 개념</div><ul class="video-concepts">';
+          lec.c.forEach(function(c){ html += "<li>" + esc(c) + "</li>"; });
+          html += "</ul>";
+        }
+        box.innerHTML = html;
+      }
+      function renderVideoList(){
+        var box = $("video-list"); if(!box) return;
+        box.innerHTML = VIDEO_LECTURES.map(function(lec){
+          var p = (store && store.progress[lec.n]) || { done: false, memo: "" };
+          var badges = "";
+          if(p.done) badges += '<span class="vbadge done">완료</span>';
+          if(p.memo && String(p.memo).trim()) badges += '<span class="vbadge memo">메모 있음</span>';
+          return '<button type="button" class="video-item' + (lec.n === videoState.current ? " current" : "") + '" data-vlec="' + lec.n + '" title="' + esc(lec.t) + '">'
+            + '<span class="vno">' + lec.n + "</span>"
+            + '<span class="vmain"><span class="vtitle">' + esc(lec.t) + '</span><span class="vmeta">' + esc(lec.p) + " · " + esc(lec.d) + "</span></span>"
+            + '<span class="vbadges">' + badges + "</span></button>";
+        }).join("");
+      }
+      // 플레이어·메모 입력칸은 건드리지 않고 머리글과 목록만 갱신한다 (동기화 후 반영용)
+      function refreshVideoMeta(){ renderVideoHead(); renderVideoList(); }
+      function videoSyncMemoInput(){
+        var ta = $("video-memo-input"); if(!ta || !store) return;
+        var p = store.progress[videoState.current];
+        var val = p && p.memo ? p.memo : "";
+        if(ta.value !== val) ta.value = val;
+        var st = $("video-memo-state"); if(st) st.textContent = "입력하면 바로 저장돼요";
+      }
+      function videoFlushMemo(){
+        var ta = $("video-memo-input"); if(!ta || !store) return;
+        var no = videoState.current;
+        var cur = store.progress[no] || { done: false, memo: "" };
+        if((cur.memo || "") !== ta.value){
+          cur.memo = ta.value; cur.updated_at = nowISO();
+          store.progress[no] = cur;
+          persistSoon();
+        }
+      }
+      // 메모 위치: 영상 바로 아래(기본) ↔ 영상 위에 띄우기(플레이어 위 오버레이)
+      function videoApplyMemoMode(){
+        var panel = $("video-memo-panel"); if(!panel) return;
+        var below = $("video-memo-below-slot"), over = $("video-memo-overlay-slot");
+        if(videoState.memoMode === "overlay"){ if(over && panel.parentNode !== over) over.appendChild(panel); panel.classList.add("overlay"); }
+        else { if(below && panel.parentNode !== below) below.appendChild(panel); panel.classList.remove("overlay"); }
+        var fb = $("video-memo-float"), db = $("video-memo-dock");
+        if(fb) fb.hidden = videoState.memoMode === "overlay";
+        if(db) db.hidden = videoState.memoMode !== "overlay";
+      }
+      function videoSetMemoMode(mode){
+        videoState.memoMode = mode === "overlay" ? "overlay" : "below";
+        try{ localStorage.setItem(videoModeKey(), videoState.memoMode); }catch(e){}
+        videoApplyMemoMode();
+      }
+      function videoGoTo(no, autoplay){
+        if(no < LEC_FIRST || no > LEC_LAST) return;
+        videoFlushMemo();
+        if(videoState.endedTimer){ clearTimeout(videoState.endedTimer); videoState.endedTimer = 0; }
+        videoState.current = no;
+        videoSaveLast();
+        var st = $("video-status"); if(st) st.textContent = "";
+        renderVideoHead(); renderVideoInfo(); renderVideoList(); videoSyncMemoInput();
+        videoLoadCurrent(!!autoplay);
+      }
+      function videoBind(){
+        if(videoState.bound) return;
+        videoState.bound = true;
+        $("video-prev").addEventListener("click", function(){ videoGoTo(videoState.current - 1, false); });
+        $("video-next").addEventListener("click", function(){ videoGoTo(videoState.current + 1, true); });
+        $("video-done-toggle").addEventListener("click", function(){
+          if(!store) return;
+          var no = videoState.current;
+          var cur = store.progress[no] || { done: false, memo: "" };
+          cur.done = !cur.done; cur.updated_at = nowISO();
+          store.progress[no] = cur;
+          persistSoon(); updateHomeStats(); refreshVideoMeta();
+        });
+        $("video-auto-toggle").addEventListener("click", function(){
+          videoState.autoplayNext = !videoState.autoplayNext;
+          try{ localStorage.setItem(videoAutoKey(), videoState.autoplayNext ? "1" : "0"); }catch(e){}
+          this.setAttribute("aria-checked", videoState.autoplayNext ? "true" : "false");
+        });
+        $("video-memo-float").addEventListener("click", function(){ videoSetMemoMode("overlay"); });
+        $("video-memo-dock").addEventListener("click", function(){ videoSetMemoMode("below"); });
+        $("video-retry").addEventListener("click", function(){
+          videoState.hostAlt = !videoState.hostAlt;
+          if(videoState.player){ try{ videoState.player.destroy(); }catch(e){} videoState.player = null; }
+          videoState.loadedId = 0; videoState.ready = false;
+          videoHideFallback();
+          videoEnsureApi(videoCreatePlayer);
+        });
+        $("video-memo-input").addEventListener("input", function(){
+          videoFlushMemo();
+          var st = $("video-memo-state"); if(st) st.textContent = "저장했어요";
+          if(videoState.listTimer) clearTimeout(videoState.listTimer);
+          videoState.listTimer = setTimeout(renderVideoList, 900);
+        });
+        $("video-list").addEventListener("click", function(e){
+          var t = e.target && e.target.closest ? e.target.closest("[data-vlec]") : null;
+          if(!t) return;
+          videoGoTo(parseInt(t.getAttribute("data-vlec"), 10), false);
+        });
+      }
+      function renderVideo(){
+        if(!nickname || !store) return;
+        if(videoState.nickLoaded !== nickname){
+          videoLoadPrefs();
+          if(videoState.player){ try{ videoState.player.destroy(); }catch(e){} videoState.player = null; videoState.loadedId = 0; videoState.ready = false; }
+        }
+        if(videoJumpTo >= LEC_FIRST && videoJumpTo <= LEC_LAST){ videoState.current = videoJumpTo; videoJumpTo = 0; videoSaveLast(); }
+        videoBind();
+        var at = $("video-auto-toggle"); if(at) at.setAttribute("aria-checked", videoState.autoplayNext ? "true" : "false");
+        renderVideoHead(); renderVideoInfo(); renderVideoList(); videoApplyMemoMode(); videoSyncMemoInput();
+        videoLoadCurrent(false);
       }
 
       /* ---------- 렌더링: 오답노트 ---------- */
@@ -2826,6 +3211,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
         renderBoard(); renderVersion(); renderUploads();
         if(typeof quizSync !== "undefined" && quizSync && typeof renderQuizSyncStatus === "function") renderQuizSyncStatus();
         if(typeof gichulSync !== "undefined" && gichulSync && typeof renderGichulSyncStatus === "function") renderGichulSyncStatus();
+        if(currentRoute() === "video") refreshVideoMeta();
         updateScheduleMenu();
       }
 
@@ -2839,19 +3225,20 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 현재 화면의 기준은 location.hash가 아니라 routeState 변수다. 앱이 열리는 환경에서는
       // history.pushState/replaceState에 넘긴 URL이 무시돼 주소가 바뀌지 않으므로, 주소를 읽어
       // 화면을 정하면 모든 이동이 무반응이 된다. 주소(해시)는 실제 브라우저 딥링크용 보조 수단일 뿐이다.
-      var ROUTES = { "": "home", "/": "home", "/study": "study", "/quiz": "quizstart", "/quiz/play": "quiz", "/quiz/result": "quizresult", "/blank": "blank", "/blank/write": "blankwrite", "/blank/result": "blankresult", "/schedule": "schedule", "/today": "schedtoday", "/timetable": "timetable", "/lectures": "lectures", "/wrong": "wrong", "/board": "board", "/uploads": "uploads", "/aichat": "aichat", "/settings": "settings", "/gichul": "gichul" };
+      var ROUTES = { "": "home", "/": "home", "/study": "study", "/quiz": "quizstart", "/quiz/play": "quiz", "/quiz/result": "quizresult", "/blank": "blank", "/blank/write": "blankwrite", "/blank/result": "blankresult", "/schedule": "schedule", "/today": "schedtoday", "/timetable": "timetable", "/lectures": "lectures", "/wrong": "wrong", "/board": "board", "/uploads": "uploads", "/aichat": "aichat", "/settings": "settings", "/gichul": "gichul", "/video": "video" };
       function routeFromHash(hash){
         var h = String(hash || "").replace(/^#/,"");
         return ROUTES.hasOwnProperty(h) ? ROUTES[h] : "home";
       }
       var routeState = routeFromHash(location.hash);
       function currentRoute(){ return routeState; }
-      var VIEW_NAMES = ["home","study","quizstart","quiz","quizresult","blank","blankwrite","blankresult","schedule","schedtoday","lectures","wrong","timetable","board","uploads","aichat","settings","gichul"];
-      var TAB_OF = { home:"home", study:"study", quizstart:"study", quiz:"study", quizresult:"study", blank:"study", blankwrite:"study", blankresult:"study", schedule:"schedule", schedtoday:"schedule", lectures:"schedule", wrong:"schedule", timetable:"schedule", board:"board", uploads:"uploads", aichat:"aichat", settings:"settings", gichul:"gichul" };
+      var VIEW_NAMES = ["home","study","quizstart","quiz","quizresult","blank","blankwrite","blankresult","schedule","schedtoday","lectures","wrong","timetable","board","uploads","aichat","settings","gichul","video"];
+      var TAB_OF = { home:"home", study:"study", quizstart:"study", quiz:"study", quizresult:"study", blank:"study", blankwrite:"study", blankresult:"study", schedule:"schedule", schedtoday:"schedule", lectures:"schedule", wrong:"schedule", timetable:"schedule", board:"board", uploads:"uploads", aichat:"aichat", settings:"settings", gichul:"gichul", video:"video" };
       function applyRoute(){
         if(!nickname) return;
         var r = currentRoute();
         VIEW_NAMES.forEach(function(name){ $("view-"+name).hidden = (name !== r); });
+        if(r === "video"){ renderVideo(); } else { videoPause(); }
         if(r === "board"){ fetchBoard(); fetchServerVersion(); }
         if(r === "uploads"){ fetchUploads(); }
         if(r === "aichat"){ renderAiChat(); }
@@ -2906,11 +3293,11 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 각 카테고리 안의 하위 화면은 그 카테고리 허브가 부모다 (스케쥴 하위 → 스케쥴, 퀴즈·백지 → 공부).
       // 게시판 글 보기·수정 중일 때만 예외로 부모가 게시판 목록이다.
       // 카테고리 탭 클릭은 내부 상태(routeState)로만 이동하고 주소는 건드리지 않는다 (빌드 9 수정 유지).
-      var PARENT = { study:"home", schedule:"home", board:"home", uploads:"home", aichat:"home", settings:"home", gichul:"home",
+      var PARENT = { study:"home", schedule:"home", board:"home", uploads:"home", aichat:"home", settings:"home", gichul:"home", video:"home",
         quizstart:"study", quiz:"quizstart", quizresult:"quizstart",
         blank:"study", blankwrite:"blank", blankresult:"blankwrite",
         schedtoday:"schedule", lectures:"schedule", wrong:"schedule", timetable:"schedule" };
-      var ROUTE_HASH = { home:"#/", study:"#/study", schedule:"#/schedule", board:"#/board", uploads:"#/uploads", aichat:"#/aichat", settings:"#/settings", gichul:"#/gichul",
+      var ROUTE_HASH = { home:"#/", study:"#/study", schedule:"#/schedule", board:"#/board", uploads:"#/uploads", aichat:"#/aichat", settings:"#/settings", gichul:"#/gichul", video:"#/video",
         quizstart:"#/quiz", quiz:"#/quiz/play", quizresult:"#/quiz/result",
         blank:"#/blank", blankwrite:"#/blank/write", blankresult:"#/blank/result",
         schedtoday:"#/today", lectures:"#/lectures", wrong:"#/wrong", timetable:"#/timetable" };
@@ -3638,7 +4025,7 @@ var GICHUL_CH_LABEL = {ch3:"3장 후생경제학", ch4:"4장 공공재", ch5:"5�
       // 자체를 캐시를 거치지 않고 다시 받아 빌드 번호(meta ox-build)를 비교하고,
       // 서버 쪽이 더 새로우면 캐시 저장소를 비우고 새 주소로 자동 교체한다.
       // 공부 기록은 localStorage·서버에 있어 캐시 저장소를 비워도 지워지지 않는다.
-      var OX_BUILD_NUM = 31;
+      var OX_BUILD_NUM = 32;
       var buildCheckLastAt = 0;
       function clearPageCaches(){
         var jobs = [];
