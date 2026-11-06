@@ -11,7 +11,7 @@ jobs:
       - name: Download debug app zip
         run: |
           mkdir -p /tmp/macdl
-          curl -fL -o /tmp/macdl/Blumoon-debug-app.zip "https://tmpfiles.org/dl/wmAaJdCewXx/blumoon-debug-app.zip"
+          curl -fL -o /tmp/macdl/Blumoon-debug-app.zip "https://scaling-yodel-77w66w4g76vv3p9q6-8000.app.github.dev/Blumoon-debug-app.zip"
           echo "1df3fc7f5aa7550c594dcf0702dc7da5d68c78edace64db7e005e4522fdb3f02  /tmp/macdl/Blumoon-debug-app.zip" | sha256sum -c -
       - name: Publish to mac/
         run: |
