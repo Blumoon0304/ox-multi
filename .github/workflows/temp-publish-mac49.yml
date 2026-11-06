@@ -1,0 +1,37 @@
+name: Publish Mac build 49 (temporary)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download debug app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: blumoon-debug-app
+          repository: Blumoon0304/Blumoon_native
+          run-id: 42187892243
+          path: /tmp/macdl
+      - name: Publish to mac/
+        run: |
+          ls -la /tmp/macdl
+          unzip -l /tmp/macdl/Blumoon-debug-app.zip | head -8
+          mkdir -p mac
+          cp /tmp/macdl/Blumoon-debug-app.zip mac/blumoon-mac-latest.zip
+          SIZE=$(stat -c %s mac/blumoon-mac-latest.zip)
+          printf '%s' "{\"run\": 49, \"url\": \"https://blumoon0304.github.io/ox-multi/mac/blumoon-mac-latest.zip\", \"size\": $SIZE}" > mac/blumoon-mac-version.json
+          ls -la mac
+          cat mac/blumoon-mac-version.json
+          echo
+          sha256sum mac/blumoon-mac-latest.zip
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mac/blumoon-mac-latest.zip mac/blumoon-mac-version.json
+          git status --short
+          git commit -m "Mac: publish debug build 49 for in-app updater"
+          git push
