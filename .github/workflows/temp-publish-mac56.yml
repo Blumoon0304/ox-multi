@@ -8,23 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download debug app artifact from Blumoon_native run 56
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download debug app zip
         run: |
           mkdir -p /tmp/macdl
-          gh api repos/Blumoon0304/Blumoon_native/actions/runs/42194696155/artifacts --jq '.artifacts[] | "\(.id) \(.name) \(.size_in_bytes)"'
-          ART_ID=$(gh api repos/Blumoon0304/Blumoon_native/actions/runs/42194696155/artifacts --jq '.artifacts[] | select(.name=="blumoon-debug-app") | .id')
-          echo "artifact id: $ART_ID"
-          test -n "$ART_ID"
-          gh api repos/Blumoon0304/Blumoon_native/actions/artifacts/$ART_ID/zip > /tmp/macdl/artifact.zip
-          ls -la /tmp/macdl
-          file /tmp/macdl/artifact.zip
-          unzip -o /tmp/macdl/artifact.zip -d /tmp/macdl
-          ls -la /tmp/macdl
-          unzip -l /tmp/macdl/Blumoon-debug-app.zip | head -8
+          curl -fL -o /tmp/macdl/Blumoon-debug-app.zip "https://tmpfiles.org/dl/wmAaJdCewXx/blumoon-debug-app.zip"
+          echo "1df3fc7f5aa7550c594dcf0702dc7da5d68c78edace64db7e005e4522fdb3f02  /tmp/macdl/Blumoon-debug-app.zip" | sha256sum -c -
       - name: Publish to mac/
         run: |
+          ls -la /tmp/macdl
+          unzip -l /tmp/macdl/Blumoon-debug-app.zip | head -8
           mkdir -p mac
           cp /tmp/macdl/Blumoon-debug-app.zip mac/blumoon-mac-latest.zip
           SIZE=$(stat -c %s mac/blumoon-mac-latest.zip)
