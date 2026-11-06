@@ -8,13 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download debug app artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: blumoon-debug-app
-          repository: Blumoon0304/Blumoon_native
-          run-id: 42187892243
-          path: /tmp/macdl
+      - name: Download debug app zip
+        run: |
+          mkdir -p /tmp/macdl
+          curl -fL -o /tmp/macdl/Blumoon-debug-app.zip "https://tmpfiles.org/dl/1793955145.509ac3af7f646ece/w4ABJySetyH2/blumoon-debug-app.zip"
+          echo "563d385ca354c8e5fcf304a425e9c1e5c028626dc2d302689a9043663d1635aa  /tmp/macdl/Blumoon-debug-app.zip" | sha256sum -c -
       - name: Publish to mac/
         run: |
           ls -la /tmp/macdl
