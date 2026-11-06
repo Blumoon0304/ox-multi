@@ -1,0 +1,43 @@
+name: Publish Mac build 56 (temporary)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download debug app artifact from Blumoon_native run 56
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/macdl
+          gh api repos/Blumoon0304/Blumoon_native/actions/runs/42194696155/artifacts --jq '.artifacts[] | "\(.id) \(.name) \(.size_in_bytes)"'
+          ART_ID=$(gh api repos/Blumoon0304/Blumoon_native/actions/runs/42194696155/artifacts --jq '.artifacts[] | select(.name=="blumoon-debug-app") | .id')
+          echo "artifact id: $ART_ID"
+          test -n "$ART_ID"
+          gh api repos/Blumoon0304/Blumoon_native/actions/artifacts/$ART_ID/zip > /tmp/macdl/artifact.zip
+          ls -la /tmp/macdl
+          file /tmp/macdl/artifact.zip
+          unzip -o /tmp/macdl/artifact.zip -d /tmp/macdl
+          ls -la /tmp/macdl
+          unzip -l /tmp/macdl/Blumoon-debug-app.zip | head -8
+      - name: Publish to mac/
+        run: |
+          mkdir -p mac
+          cp /tmp/macdl/Blumoon-debug-app.zip mac/blumoon-mac-latest.zip
+          SIZE=$(stat -c %s mac/blumoon-mac-latest.zip)
+          printf '%s' "{\"run\": 56, \"url\": \"https://blumoon0304.github.io/ox-multi/mac/blumoon-mac-latest.zip\", \"size\": $SIZE}" > mac/blumoon-mac-version.json
+          ls -la mac
+          cat mac/blumoon-mac-version.json
+          echo
+          sha256sum mac/blumoon-mac-latest.zip
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mac/blumoon-mac-latest.zip mac/blumoon-mac-version.json
+          git status --short
+          git commit -m "Mac: publish debug build 56 for in-app updater"
+          git push
